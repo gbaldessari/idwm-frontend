@@ -7,20 +7,8 @@ import loginService from '../services/login.service';
 import { useNavigation } from '@react-navigation/native';
 import useStore from '../stores/useStore';
 
-const loginSchema = Joi.object({
-  user: Joi.string().min(1).max(10),
-  password: Joi.string().min(1).max(10),
-});
-
-const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean }) => (
-  <Input
-    label={label}
-    placeholder={placeholder}
-    errorMessage={errorMessage}
-    onChangeText={onChangeText}
-    secureTextEntry={secureTextEntry}
-  />
-);
+var validUser:boolean = false;
+var validPassword:boolean = false;
 
 const Login = () => {
   const navigation = useNavigation();
@@ -36,8 +24,10 @@ const Login = () => {
 
     if (errors?.error?.details[0]?.context?.key === 'user') {
       setErrorMessageUser(errors.error.details[0].message);
+      validUser = false;
     } else{
       setErrorMessageUser('');
+      validUser = true;
     }
     return;
   }, [user]);
@@ -47,13 +37,18 @@ const Login = () => {
 
     if (errors?.error?.details[0]?.context?.key === 'password') {
       setErrorMessagePassword(errors.error.details[0].message);
+      validPassword = false;
     } else{
       setErrorMessagePassword('');
+      validPassword = true;
     }
     return;
   }, [password]);
 
   const onLogin = async () => {
+    if(!validPassword || !validUser){
+      return;
+    }
     const payload = { user, password };
     setLoading(true);
     setTimeout(() => {
@@ -75,15 +70,30 @@ const Login = () => {
         onChangeText={(value: string) => setUser(value)}
       />
       <FormInput
-        secureTextEntry
         label="Contraseña"
         placeholder="********"
         errorMessage={errorMessagePassword}
         onChangeText={(value: string) => setPassword(value)}
+        secureTextEntry
       />
       <Button title="Login" onPress={onLogin} loading={loading} />
     </View>
   );
 };
+
+const loginSchema = Joi.object({
+  user: Joi.string().min(8).max(20),
+  password: Joi.string().min(8).max(20),
+});
+
+const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean }) => (
+  <Input
+    label={label}
+    placeholder={placeholder}
+    errorMessage={errorMessage}
+    onChangeText={onChangeText}
+    secureTextEntry={secureTextEntry}
+  />
+);
 
 export default Login;

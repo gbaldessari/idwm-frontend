@@ -2,6 +2,15 @@ import React from 'react';
 import { Box } from 'native-base';
 import useStore from '../stores/useStore';
 
+const Home = () => {
+  const { user } = useStore();
+  return (
+    <StyledBox>
+      Hello world! {user}
+    </StyledBox>
+  );
+};
+
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
   <Box
     style={{
@@ -15,14 +24,5 @@ const StyledBox = ({ children }: { children: React.ReactNode }) => (
     {children}
   </Box>
 );
-
-const Home = () => {
-  const { user } = useStore();
-  return (
-    <StyledBox>
-      Hello world! {user}
-    </StyledBox>
-  );
-};
 
 export default Home;

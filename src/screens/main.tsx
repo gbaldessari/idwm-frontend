@@ -4,10 +4,6 @@ import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Box } from 'native-base';
 
-const NavigationButton = ({ title, navigateTo, loading }: { title: string, navigateTo: () => void, loading: boolean }) => (
-    <Button title={title} onPress={navigateTo} loading={loading} />
-  );
-
 const Main = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -28,6 +24,10 @@ const Main = () => {
     </View>
   );
 };
+
+const NavigationButton = ({ title, navigateTo, loading }: { title: string, navigateTo: () => void, loading: boolean }) => (
+  <Button title={title} onPress={navigateTo} loading={loading} />
+);
 
 const styles = StyleSheet.create({
   container: {

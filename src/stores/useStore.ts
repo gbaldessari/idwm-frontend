@@ -9,4 +9,5 @@ const useStore = create<UserState>()((set) => ({
   user: '',
   setUser: (value: string) => set({ user: value }),
 }));
+
 export default useStore;
