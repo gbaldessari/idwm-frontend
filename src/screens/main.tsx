@@ -3,35 +3,46 @@ import { View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Text } from 'native-base';
-
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../App';
 
 const Main = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(false);
 
-  const navigate = (route: string) => {
+  const onLogin = async () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      navigation.navigate(route);
+      navigation.navigate('Login');
     }, 1000);
   };
 
+  const onRegister = async () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate('Register');
+    }, 1000);
+  };
+
+  const LoginButton = ({ title, loading }: { title: string, loading: boolean }) => (
+    <Button title={title} onPress={onLogin} loading={loading} buttonStyle={{ marginVertical: 10, backgroundColor: 'red' }} />
+  );
+
+  const RegisterButton = ({ title, loading }: { title: string, loading: boolean }) => (
+    <Button title={title} onPress={onRegister} loading={loading} buttonStyle={{ marginVertical: 10, backgroundColor: 'red' }} />
+  );
   return (
     <View style={styles.container}>
       <StyledBox>
         <Text style={styles.title}>MarcApp</Text>
       </StyledBox>
-      <NavigationButton title="Ingresar" navigateTo={() => navigate('Login')} loading={loading} />
-      <NavigationButton title="Registrarse" navigateTo={() => navigate('Register')} loading={loading} />
+      <LoginButton title="Ingresar" loading={loading} />
+      <RegisterButton title="Registrarse" loading={loading} />
     </View>
   );
 };
-
-const NavigationButton = ({ title, navigateTo, loading }: { title: string, navigateTo: () => void, loading: boolean }) => (
-  <Button title={title} onPress={navigateTo} loading={loading} buttonStyle={{ marginVertical: 10, backgroundColor: 'red' }} />
-);
-
 
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
   <View style = {styles.container}>
