@@ -49,7 +49,7 @@ const Login = () => {
     if(!validPassword || !validUser){
       return;
     }
-    const payload = { user, password };
+    //const payload = { user, password };
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -58,6 +58,9 @@ const Login = () => {
     }, 1000);
     // const response = await loginService(payload);
   };
+  const NavigationButton = ({ title, loading }: { title: string, loading: boolean }) => (
+    <Button title={title} onPress={onLogin} loading={loading} buttonStyle={{ marginVertical: 10, backgroundColor: 'red' }} />
+  );
 
   return (
     <View
@@ -65,7 +68,7 @@ const Login = () => {
     >
       <FormInput
         label="Usuario"
-        placeholder="Juanito"
+        placeholder="Usuario"
         errorMessage={errorMessageUser}
         onChangeText={(value: string) => setUser(value)}
       />
@@ -76,15 +79,18 @@ const Login = () => {
         onChangeText={(value: string) => setPassword(value)}
         secureTextEntry
       />
-      <Button title="Login" onPress={onLogin} loading={loading} />
+      <NavigationButton title= 'Ingresar'  loading= {loading} />
     </View>
   );
+ 
 };
 
 const loginSchema = Joi.object({
   user: Joi.string().min(8).max(20),
   password: Joi.string().min(8).max(20),
 });
+
+
 
 const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean }) => (
   <Input

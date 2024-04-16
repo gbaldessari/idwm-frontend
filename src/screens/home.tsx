@@ -1,28 +1,33 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { View, StyleSheet } from 'react-native';
+import { Box, Text } from 'native-base';
 import useStore from '../stores/useStore';
 
 const Home = () => {
   const { user } = useStore();
   return (
     <StyledBox>
-      Hello world! {user}
+      <Text style={{ fontSize: 35, textAlign: 'center', lineHeight: 35 }}>Bienvenido</Text>
+      <Text style={{ fontSize: 20, textAlign: 'center' }}>{user}</Text>
     </StyledBox>
   );
 };
 
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
-  <Box
-    style={{
-      flex: 1,
-      alignContent: 'center',
-      justifyContent: 'center',
-      marginHorizontal: '7%',
-      marginVertical: '10%',
-    }}
-  >
-    {children}
-  </Box>
+  <View style = {styles.container}>
+    <Box>
+      {children}
+    </Box>
+  </View>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    padding: 10,
+  }
+});
 
 export default Home;

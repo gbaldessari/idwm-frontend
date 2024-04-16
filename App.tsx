@@ -20,8 +20,8 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const Screen = (name: keyof RootStackParamList, component: React.ComponentType, header: boolean) => (
-  <Stack.Screen name={name} component={component} options={{ headerShown: header }} />
+const Screen = (name: keyof RootStackParamList, component: React.ComponentType, header: boolean, title?: string) => (
+  <Stack.Screen name={name} component={component} options={{ headerShown: header, headerTitle: title}} />
 );
 
 const App = () => {
@@ -34,8 +34,8 @@ const App = () => {
               {Screen("Main", Main, false)}
               {Screen("Home", Home, false)}
               {Screen("Loading", Loading, false)}
-              {Screen("Login", Login, true)}
-              {Screen("Register", Register, true)}
+              {Screen("Login", Login, true, 'Ingreso')}
+              {Screen("Register", Register, true, 'Registro')}
             </Stack.Navigator>
           </NavigationContainer>
         </NativeBaseProvider>
