@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const loginService = async (payload: { user: string; password: string }) => {
+const loginService = async (payload: { mail: string; password: string }) => {
   try {
     const url = `${process.env.EXPO_PUBLIC_MS_USER_URL}/auth`;
     const response = await axios.post(url, payload);

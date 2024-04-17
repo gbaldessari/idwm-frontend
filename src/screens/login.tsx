@@ -8,33 +8,34 @@ import { useNavigation } from '@react-navigation/native';
 import useStore from '../stores/useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
+import { Center } from 'native-base';
 
 const Login = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { setUser: setUserStore } = useStore();
+  const {setMail: setMailStore} = useStore();
   const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
   const [loadingForgotten, setLoadingForgotten] = useState<boolean>(false);
   const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
-  const [user, setUser] = useState<string>('');
-  const [errorMessageUser, setErrorMessageUser] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [errorMessagePassword, setErrorMessagePassword] = useState<string>('');
   const [isForgottenPressed, setIsForgottenPressed] = useState<boolean>(false);
   const [isLoginPressed, setIsLoginPressed] = useState<boolean>(false);
-  const [validUser, setValidUser] = useState<boolean>(false);
+  const [validMail, setValidMail] = useState<boolean>(false);
   const [validPassword, setValidPassword] = useState<boolean>(false);
+  const [mail, setMail] = useState<string>('');
+  const [errorMessageMail, setErrorMessageMail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [errorMessagePassword, setErrorMessagePassword] = useState<string>('');
 
   useEffect(() => {
-    const errors = loginSchema.validate({ user });
-    if (errors?.error?.details[0]?.context?.key === 'user') {
-      setErrorMessageUser(errors.error.details[0].message);
-      setValidUser(false);
+    const errors = loginSchema.validate({ mail });
+    if (errors?.error?.details[0]?.context?.key === 'mail') {
+      setErrorMessageMail(errors.error.details[0].message);
+      setValidMail(false);
     } else{
-      setErrorMessageUser('');
-      setValidUser(true);
+      setErrorMessageMail('');
+      setValidMail(true);
     }
     return;
-  }, [user]);
+  }, [mail]);
   
   useEffect(() => {
     const errors = loginSchema.validate({ password });
@@ -49,21 +50,21 @@ const Login = () => {
   }, [password]);
 
   const onLogin = async () => {
-    if(!validPassword || !validUser || isForgottenPressed){
+    if(!validPassword || !validMail || isForgottenPressed){
       return;
     }
     setIsLoginPressed(true);
     setIsDisabledText(true);
     setLoadingLogin(true);
-    //const payload = { user, password };
+    const payload = {mail, password};
+    //const response = await loginService(payload);
     setTimeout(() => {
       setIsLoginPressed(false);
       setIsDisabledText(false);
       setLoadingLogin(false);
-      setUserStore(user);
+      setMailStore(mail);
       navigation.navigate('Home');
     }, 1000);
-    // const response = await loginService(payload);
   };
 
   const onForgotten = async () => {
@@ -74,47 +75,52 @@ const Login = () => {
     setIsDisabledText(true);
     setLoadingForgotten(true);
     setTimeout(() => {
+      setMailStore(mail);
       setIsForgottenPressed(false);
       setIsDisabledText(false);
       setLoadingForgotten(false);
-      setUserStore(user);
+      setMailStore(mail);
       navigation.navigate('Forgotten');
     }, 1000);
   };
 
   const LoginButton = () => (
-    <Button
-      title={'Ingresar'}
-      onPress={onLogin}
-      loading={loadingLogin}
-      buttonStyle={{
-        marginVertical: 10,
-        backgroundColor: 'red'
-      }}
-      disabled={isForgottenPressed}
-    />
+    <Center>
+      <Button
+        title={'Ingresar'}
+        onPress={onLogin}
+        loading={loadingLogin}
+        buttonStyle={{
+          marginVertical: 10,
+          backgroundColor: 'red'
+        }}
+        disabled={isForgottenPressed}
+      />
+    </Center>
   );
 
   const ForgottenButton = () => (
-    <Button
-      title={'¿Olvido su contraseña?'}
-      onPress={onForgotten}
-      loading={loadingForgotten}
-      type="clear"
-      titleStyle={{
-        color: 'black'
-      }}
-      disabled={isLoginPressed}
-    />
+    <Center>
+      <Button
+        title={'¿Olvido su contraseña?'}
+        onPress={onForgotten}
+        loading={loadingForgotten}
+        type="clear"
+        titleStyle={{
+          color: 'black'
+        }}
+        disabled={isLoginPressed}
+      />
+    </Center>
   );
   
   return (
     <View style={styles.container}>
       <FormInput
-        label="Usuario"
-        placeholder="Usuario"
-        errorMessage={errorMessageUser}
-        onChangeText={(value: string) => setUser(value)}
+        label="Mail"
+        placeholder="user@example.com"
+        errorMessage={errorMessageMail}
+        onChangeText={(value: string) => setMail(value)}
         disabled = {isDisabledText}
       />
       <FormInput
@@ -132,8 +138,8 @@ const Login = () => {
 };
 
 const loginSchema = Joi.object({
-  user: Joi.string().min(8).max(20),
-  password: Joi.string().min(8).max(20),
+  mail: Joi.string().min(1).max(256).pattern(/^\S+@\S+\.\S+$/),
+  password: Joi.string().min(8).max(12),
 });
 
 const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry, disabled }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean, disabled: boolean}) => (

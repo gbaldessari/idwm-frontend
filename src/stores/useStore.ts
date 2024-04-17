@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
-type UserState = {
-  user: string;
-  setUser: (value: string) => void;
+type MailState = {
+  storedMail: string;
+  setMail: (value: string) => void;
 };
 
-const useStore = create<UserState>()((set) => ({
-  user: '',
-  setUser: (value: string) => set({ user: value }),
+const useStore = create<MailState>()((set) => ({
+  storedMail: '',
+  setMail: (value: string) => set({ storedMail: value }),
 }));
 
 export default useStore;

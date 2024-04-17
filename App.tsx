@@ -9,6 +9,7 @@ import Main from './src/screens/main';
 import Register from './src/screens/register';
 import Login from './src/screens/login';
 import Forgotten from './src/screens/forgottenPassword';
+import Recover from './src/screens/recoverPassword';
 
 export type RootStackParamList = {
   Main: undefined;
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   Register: undefined;
   Login: undefined;
   Forgotten: undefined;
+  Recover: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -32,6 +34,7 @@ const App = () => {
               {Screen("Login", Login, true, 'Ingreso')}
               {Screen("Register", Register, true, 'Registro')}
               {Screen("Forgotten", Forgotten, true, 'Contraseña Olvidada')}
+              {Screen("Recover", Recover, false, 'Recuperar Contraseña')}
             </Stack.Navigator>
           </NavigationContainer>
         </NativeBaseProvider>
