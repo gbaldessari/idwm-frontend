@@ -126,19 +126,24 @@ const Register = () => {
     if(!validName || !validLastName || !validMail || !validPassword || !validBirthdate){
       return;
     }
+    setValue('name', name);
+    setValue('lastName', lastName);
+    setValue('email', mail);
+    setValue('password', password);
+    setValue('birthdate', birthdate);
     setIsDisabledText(true);
     setLoading(true);
-    //const response = await registerService(data);
+    const response = await registerService(data);
     setTimeout(() => {
       setIsDisabledText(false);
       setLoading(false);
-      //setMessage((response?.data || response?.error) as string);
-      //setAlert(true);
+      setMessage((response?.data || response?.error) as string);
+      setAlert(true);
 
-      //if (response?.success) {
-        //setData(InitData);
+      if (response?.success) {
+        setData(InitData);
         navigation.navigate('Main');
-      //}
+      }
     },1000);
   };
 
