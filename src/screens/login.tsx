@@ -9,8 +9,20 @@ import useStore from '../stores/useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { Center } from 'native-base';
+import registerService from "../services/register.services";
+
+type FormDataT = {
+  email: string;
+  password: string;
+};
+
+const InitData = {
+  email: '',
+  password: '',
+};
 
 const Login = () => {
+  const [data, setData] = useState<FormDataT>(InitData);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {setMail: setMailStore} = useStore();
   const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
@@ -24,6 +36,15 @@ const Login = () => {
   const [errorMessageMail, setErrorMessageMail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errorMessagePassword, setErrorMessagePassword] = useState<string>('');
+
+  const setValue = (key: string, value: string) => {
+    setData((prevState) => {
+      return {
+        ...prevState,
+        [key]: value,
+      };
+    });
+  };
 
   useEffect(() => {
     const errors = loginSchema.validate({ mail });
@@ -56,14 +77,18 @@ const Login = () => {
     setIsLoginPressed(true);
     setIsDisabledText(true);
     setLoadingLogin(true);
-    const payload = {mail, password};
-    //const response = await loginService(payload);
-    setTimeout(() => {
+    setValue('email', mail);
+    setValue('password', password);
+    setTimeout(async () => {
+      const response = await loginService(data);
       setIsLoginPressed(false);
       setIsDisabledText(false);
       setLoadingLogin(false);
       setMailStore(mail);
-      navigation.navigate('Home');
+      if (response?.success) {
+        setData(InitData);
+        navigation.navigate('Home');
+      }
     }, 1000);
   };
 
