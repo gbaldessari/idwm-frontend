@@ -11,9 +11,7 @@ const registerService = async (
 ): Promise<RegisterServiceResponseT> => {
   try {
     const endpoint: string = `${process.env.EXPO_PUBLIC_MS_USER_URL}/auth/register`;
-
     return {
-
       success: true,
       data: (await axios.post(endpoint, data))?.data?.message,
     };

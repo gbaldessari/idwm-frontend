@@ -52,15 +52,6 @@ const Register = () => {
   const [errorMessageMail, setErrorMessageMail] = useState<string>('');
   const [errorMessagePassword, setErrorMessagePassword] = useState<string>('');
   const [errorMessageBirthdate, setErrorMessageBirthdate] = useState<string>('');
-
-  const setValue = (key: string, value: string) => {
-    setData((prevState) => {
-      return {
-        ...prevState,
-        [key]: value,
-      };
-    });
-  };
   
   useEffect(() => {
     const errors = registerSchema.validate({ name });
@@ -126,14 +117,12 @@ const Register = () => {
     if(!validName || !validLastName || !validMail || !validPassword || !validBirthdate){
       return;
     }
-    setValue('name', name);
-    setValue('lastName', lastName);
-    setValue('email', mail);
-    setValue('password', password);
-    setValue('birthdate', birthdate);
+
+    const dataObj = {name, lastName, email: mail, password, birthdate}; 
+    
     setIsDisabledText(true);
     setLoading(true);
-    const response = await registerService(data);
+    const response = await registerService(dataObj);
     setTimeout(() => {
       setIsDisabledText(false);
       setLoading(false);

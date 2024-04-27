@@ -9,7 +9,6 @@ import useStore from '../stores/useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { Center } from 'native-base';
-import registerService from "../services/register.services";
 
 type FormDataT = {
   email: string;
@@ -36,15 +35,6 @@ const Login = () => {
   const [errorMessageMail, setErrorMessageMail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errorMessagePassword, setErrorMessagePassword] = useState<string>('');
-
-  const setValue = (key: string, value: string) => {
-    setData((prevState) => {
-      return {
-        ...prevState,
-        [key]: value,
-      };
-    });
-  };
 
   useEffect(() => {
     const errors = loginSchema.validate({ mail });
@@ -77,10 +67,14 @@ const Login = () => {
     setIsLoginPressed(true);
     setIsDisabledText(true);
     setLoadingLogin(true);
-    setValue('email', mail);
-    setValue('password', password);
+
+    const dataObj = {
+      email: mail,
+      password: password
+    }
+
     setTimeout(async () => {
-      const response = await loginService(data);
+      const response = await loginService(dataObj);
       setIsLoginPressed(false);
       setIsDisabledText(false);
       setLoadingLogin(false);
@@ -167,7 +161,18 @@ const loginSchema = Joi.object({
   password: Joi.string().min(8).max(12),
 });
 
-const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry, disabled }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean, disabled: boolean}) => (
+const FormInput = ({ 
+  label, 
+  placeholder, 
+  errorMessage, 
+  onChangeText, 
+  secureTextEntry, 
+  disabled }: { 
+    label: string, 
+    placeholder: string, 
+    errorMessage: string, 
+    onChangeText: (value: string) => void, 
+    secureTextEntry?: boolean, disabled: boolean}) => (
   <Input
     label={label}
     placeholder={placeholder}
