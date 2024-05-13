@@ -6,8 +6,9 @@ export type RecoverPasswordServiceResponseT = {
     error?: string;
 };
 
-const RecoverPasswordService = async (payload: { mail: string; password: string }): Promise<RecoverPasswordServiceResponseT> =>  {
+const RecoverPasswordService = async (payload: { email: string}): Promise<RecoverPasswordServiceResponseT> =>  {
     try {
+        console.log(payload);
         const endpoint : string = `${process.env.EXPO_PUBLIC_MS_USER_URL}/auth/create-password-reset-token`;
         return {
             success: true,
@@ -15,7 +16,7 @@ const RecoverPasswordService = async (payload: { mail: string; password: string 
         };
     } catch (e: unknown) {
         let error = 'Ha ocurrido un error';
-        console.log(error);
+        console.log(e);
         return { success: false, error};
     }
 };

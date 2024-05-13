@@ -72,18 +72,15 @@ const Login = () => {
       email: mail,
       password: password
     }
-
-    setTimeout(async () => {
-      const response = await loginService(dataObj);
-      setIsLoginPressed(false);
-      setIsDisabledText(false);
-      setLoadingLogin(false);
-      setMailStore(mail);
-      if (response?.success) {
-        setData(InitData);
-        navigation.navigate('Home');
-      }
-    }, 1000);
+    const response = await loginService(dataObj);
+    setIsLoginPressed(false);
+    setIsDisabledText(false);
+    setLoadingLogin(false);
+    setMailStore(mail);
+    if (response?.success) {
+      setData(InitData);
+      navigation.navigate('Home');
+    }
   };
 
   const onForgotten = async () => {
