@@ -82,8 +82,10 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
   },
   button: {
+    height: 45,
+    width: 160,
     marginVertical: 10,
-    backgroundColor: 'red',
+    backgroundColor: '#6200ee',
   },
 });
 

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export type LoginServiceResponseT = {
   success: boolean;
-  data?: string;
+  data?: { token: string };
   error?: string;
 };
 

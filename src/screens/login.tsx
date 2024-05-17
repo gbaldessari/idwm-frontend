@@ -73,7 +73,7 @@ const Login = () => {
     setLoadingLogin(true);
 
     const response = await loginService({ email, password });
-    const access_token = response?.data;
+    const access_token = response?.data?.token;
 
     setIsLoginPressed(false);
     setIsDisabledText(false);
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginVertical: 10,
-    backgroundColor: 'red',
+    backgroundColor: '#6200ee',
   },
   forgottenButtonTitle: {
     color: 'black',

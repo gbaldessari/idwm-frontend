@@ -127,7 +127,7 @@ const NavigationButton = ({ title, onPress, loading }: { title: string; onPress:
       title={title}
       onPress={onPress}
       loading={loading}
-      buttonStyle={{ marginVertical: 10, backgroundColor: 'red' }}
+      buttonStyle={{ marginVertical: 10, backgroundColor: '#6200ee' }}
     />
   </Center>
 );

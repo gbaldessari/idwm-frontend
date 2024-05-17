@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   recoverButton: {
     marginVertical: 10,
-    backgroundColor: 'red'
+    backgroundColor: '#6200ee'
   }
 });
 

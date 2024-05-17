@@ -16,6 +16,7 @@ const Home = () => {
 
     const token: string = storedToken || "";
     const response = await scheduleService({ token });
+    console.log(response)
     setLoading(false);
   };
 
