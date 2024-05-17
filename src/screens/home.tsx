@@ -1,14 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Box, Text } from 'native-base';
-import useStore from '../stores/useStore';
+import { Button } from 'react-native-elements';
+import mailUseStore from '../stores/mailUseStore';
+import tokenUseStore from '../stores/tokenUseStore';
+import scheduleService from '../services/schedule.service';
 
 const Home = () => {
-  const {storedMail} = useStore();
+  const { storedMail } = mailUseStore();
+  const { storedToken } = tokenUseStore();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handlePress = async () => {
+    setLoading(true);
+
+    const token: string = storedToken || "";
+    const response = await scheduleService({ token });
+    setLoading(false);
+  };
+
   return (
     <StyledBox>
       <Text style={styles.title}>Bienvenido</Text>
       <Text style={styles.userText}>{storedMail}</Text>
+      <Button
+        title="Marcar horario"
+        onPress={handlePress}
+        loading={loading}
+        containerStyle={styles.buttonContainer}
+        buttonStyle={styles.button}
+      />
     </StyledBox>
   );
 };
@@ -31,11 +52,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 35,
     textAlign: 'center',
-    lineHeight: 35
+    lineHeight: 35,
+    marginBottom: 20,
   },
   userText: {
     fontSize: 20,
-    textAlign: 'center'
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    alignSelf: 'center',
+    width: '80%',
+  },
+  button: {
+    justifyContent: 'center',
+    backgroundColor: '#6200ee',
+    height: 60,
   }
 });
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Center, VStack, AlertDialog } from 'native-base';
 import { View, StyleSheet } from 'react-native';
-import { Button,Input} from 'react-native-elements';
+import { Button, Input } from 'react-native-elements';
 import registerService from '../services/register.services';
 import { useNavigation } from '@react-navigation/core';
 import { RootStackParamList } from '../../App';
@@ -17,7 +17,7 @@ type FormDataT = {
   birthdate: string;
 };
 
-const InitData = {
+const InitData: FormDataT = {
   name: '',
   lastName: '',
   email: '',
@@ -30,208 +30,127 @@ const Register = () => {
   const [alert, setAlert] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const cancelRef = useRef(null);
-
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
 
-  const [name, setName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [mail, setMail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [birthdate, setBirthdate] = useState<string>('');
+  const [errors, setErrors] = useState<Record<keyof FormDataT, string>>({
+    name: '',
+    lastName: '',
+    email: '',
+    password: '',
+    birthdate: ''
+  });
 
-  const [validName, setValidName] = useState<boolean>(false);
-  const [validLastName, setValidLastName] = useState<boolean>(false);
-  const [validMail, setValidMail] = useState<boolean>(false);
-  const [validPassword, setValidPassword] = useState<boolean>(false);
-  const [validBirthdate, setValidBirthdate] = useState<boolean>(false);
-  
-  const [errorMessageName, setErrorMessageName] = useState<string>('');
-  const [errorMessageLastName, setErrorMessageLastName] = useState<string>('');
-  const [errorMessageMail, setErrorMessageMail] = useState<string>('');
-  const [errorMessagePassword, setErrorMessagePassword] = useState<string>('');
-  const [errorMessageBirthdate, setErrorMessageBirthdate] = useState<string>('');
-  
-  useEffect(() => {
-    const errors = registerSchema.validate({ name });
-    if (errors?.error?.details[0]?.context?.key === 'name') {
-      setErrorMessageName(errors.error.details[0].message);
-      setValidName(false);
-    } else{
-      setErrorMessageName('');
-      setValidName(true);
-    }
-    return;
-  }, [name]);
-
-  useEffect(() => {
-    const errors = registerSchema.validate({ lastName });
-    if (errors?.error?.details[0]?.context?.key === 'lastName') {
-      setErrorMessageLastName(errors.error.details[0].message);
-      setValidLastName(false);
-    } else{
-      setErrorMessageLastName('');
-      setValidLastName(true);
-    }
-    return;
-  }, [lastName]);
-
-  useEffect(() => {
-    const errors = registerSchema.validate({ mail });
-    if (errors?.error?.details[0]?.context?.key === 'mail') {
-      setErrorMessageMail(errors.error.details[0].message);
-      setValidMail(false);
-    } else{
-      setErrorMessageMail('');
-      setValidMail(true);
-    }
-    return;
-  }, [mail]);
-
-  useEffect(() => {
-    const errors = registerSchema.validate({ password });
-    if (errors?.error?.details[0]?.context?.key === 'password') {
-      setErrorMessagePassword(errors.error.details[0].message);
-      setValidPassword(false);
-    } else{
-      setErrorMessagePassword('');
-      setValidPassword(true);
-    }
-    return;
-  }, [password]);
-
-  useEffect(() => {
-    const errors = registerSchema.validate({ birthdate });
-    if (errors?.error?.details[0]?.context?.key === 'birthdate') {
-      setErrorMessageBirthdate(errors.error.details[0].message);
-      setValidBirthdate(false);
-    } else{
-      setErrorMessageBirthdate('');
-      setValidBirthdate(true);
-    }
-    return;
-  }, [birthdate]);
-
-  const onCreateAccount = async () => {
-    if(!validName || !validLastName || !validMail || !validPassword || !validBirthdate){
-      return;
-    }
-
-    const dataObj = {name, lastName, email: mail, password, birthdate}; 
-    
-    setIsDisabledText(true);
-    setLoading(true);
-    const response = await registerService(dataObj);
-    setTimeout(() => {
-      setIsDisabledText(false);
-      setLoading(false);
-      setMessage((response?.data || response?.error) as string);
-      setAlert(true);
-
-      if (response?.success) {
-        setData(InitData);
-        navigation.navigate('Main');
-      }
-    },1000);
+  const handleInputChange = (field: keyof FormDataT) => (value: string) => {
+    setData(prev => ({ ...prev, [field]: value }));
+    validateField(field, value);
   };
 
-  const NavigationButton = () => (
-    <Center>
-      <Button
-      title = {'Crear cuenta'}
-      onPress = {onCreateAccount}
-      loading = {loading}
-      buttonStyle={{ 
-        marginVertical: 10,
-        backgroundColor: 'red'
-        }}
-      />
-    </Center>
-  );
+  const validateField = (field: keyof FormDataT, value: string) => {
+    const schema = Joi.object({ [field]: registerSchema.extract(field) });
+    const { error } = schema.validate({ [field]: value });
+    setErrors(prev => ({
+      ...prev,
+      [field]: error ? error.details[0].message : '',
+    }));
+  };
 
-  const CustomAlertDialog = () => (
-    <AlertDialog 
-      leastDestructiveRef={cancelRef}
-      isOpen={alert}
-      onClose={() => setAlert(false)}
-    >
-      <AlertDialog.Content>
-        <AlertDialog.CloseButton/>
-        <AlertDialog.Body>{message}</AlertDialog.Body>
-      </AlertDialog.Content>
-    </AlertDialog>
-  );
+  const isValidForm = () => {
+    const { error } = registerSchema.validate(data, { abortEarly: false });
+    if (!error) return true;
+
+    const fieldErrors = error.details.reduce((acc, { context, message }) => {
+      if (context?.key) acc[context.key as keyof FormDataT] = message;
+      return acc;
+    }, {} as Record<keyof FormDataT, string>);
+
+    setErrors(fieldErrors);
+    return false;
+  };
+
+  const onCreateAccount = async () => {
+    if (!isValidForm()) return;
+
+    setIsDisabledText(true);
+    setLoading(true);
+
+    const response = await registerService(data);
+    setIsDisabledText(false);
+    setLoading(false);
+    setMessage(response?.data || response?.error || '');
+    setAlert(true);
+
+    if (response?.success) {
+      setData(InitData);
+      navigation.navigate('Main');
+    }
+  };
 
   return (
-    <View style = {styles.container}>
+    <View style={styles.container}>
       <Box style={styles.containerBox}>
-        <CustomAlertDialog/>
+        <CustomAlertDialog alert={alert} message={message} onClose={() => setAlert(false)} cancelRef={cancelRef} />
         <VStack space={4} alignItems='center'>
-        <FormInput
-            label='Nombre'
-            placeholder='Eric'
-            errorMessage={errorMessageName}
-            onChangeText={(value: string) => setName(value)}
-            disabled={isDisabledText}
-          />
-          <FormInput
-            label='Apellido'
-            placeholder='Ross'
-            errorMessage={errorMessageLastName}
-            onChangeText={(value: string) => setLastName(value)}
-            disabled={isDisabledText}
-          />
-          <FormInput
-            label='Email'
-            placeholder='user@example.com'
-            errorMessage={errorMessageMail}
-            onChangeText={(value: string) => setMail(value)}
-            disabled={isDisabledText}
-          />
-          <FormInput
-            label='Contraseña'
-            placeholder='*********'
-            errorMessage={errorMessagePassword}
-            onChangeText={(value: string) => setPassword(value)}
-            disabled={isDisabledText}
-            secureTextEntry
-          />
-          <FormInput
-            label='Fecha de nacimiento'
-            placeholder='DD/MM/AAAA'
-            errorMessage={errorMessageBirthdate}
-            onChangeText={(value: string) => setBirthdate(value)}
-            disabled={isDisabledText}
-          />
-          <NavigationButton/>
+          {Object.keys(data).map((field) => (
+            <FormInput
+              key={field}
+              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              placeholder={field === 'birthdate' ? 'DD/MM/AAAA' : field === 'password' ? '*********' : ''}
+              errorMessage={errors[field as keyof FormDataT]}
+              onChangeText={handleInputChange(field as keyof FormDataT)}
+              secureTextEntry={field === 'password'}
+              disabled={isDisabledText}
+            />
+          ))}
+          <NavigationButton title='Crear cuenta' onPress={onCreateAccount} loading={loading} />
         </VStack>
       </Box>
     </View>
   );
 };
 
-const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry, disabled }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean, disabled: boolean}) => (
+const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry, disabled }: { label: string; placeholder: string; errorMessage: string; onChangeText: (value: string) => void; secureTextEntry?: boolean; disabled: boolean; }) => (
   <Input
     label={label}
     placeholder={placeholder}
     errorMessage={errorMessage}
     onChangeText={onChangeText}
     secureTextEntry={secureTextEntry}
-    disabled = {disabled}
+    disabled={disabled}
   />
 );
 
+const NavigationButton = ({ title, onPress, loading }: { title: string; onPress: () => void; loading: boolean }) => (
+  <Center>
+    <Button
+      title={title}
+      onPress={onPress}
+      loading={loading}
+      buttonStyle={{ marginVertical: 10, backgroundColor: 'red' }}
+    />
+  </Center>
+);
+
+const CustomAlertDialog = ({ alert, message, onClose, cancelRef }: { alert: boolean; message: string; onClose: () => void; cancelRef: React.RefObject<any>; }) => (
+  <AlertDialog leastDestructiveRef={cancelRef} isOpen={alert} onClose={onClose}>
+    <AlertDialog.Content>
+      <AlertDialog.CloseButton />
+      <AlertDialog.Body>{message}</AlertDialog.Body>
+    </AlertDialog.Content>
+  </AlertDialog>
+);
+
 const registerSchema = Joi.object({
-  name: Joi.string().min(1).max(20),
-  lastName: Joi.string().min(1).max(20),
-  mail: Joi.string().min(1).max(256).pattern(/^\S+@\S+\.\S+$/),
-  password: Joi.string().min(8).max(12),
-  birthdate: Joi.string().pattern(/^\d{2}\/\d{2}\/\d{4}$/).custom((value, helpers) => {
+  name: Joi.string().min(1).max(20).required(),
+  lastName: Joi.string().min(1).max(20).required(),
+  email: Joi.string().min(1).max(256).pattern(/^\S+@\S+\.\S+$/).required(),
+  password: Joi.string().min(8).max(12).required(),
+  birthdate: Joi.string().pattern(/^\d{2}\/\d{2}\/\d{4}$/).required().custom((value, helpers) => {
     const [day, month, year] = value.split('/');
-    const date = new Date(year, month - 1, day);
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
     const now = new Date();
-    if (date.getFullYear() !== parseInt(year) || date.getMonth() + 1 !== parseInt(month) || date.getDate() !== parseInt(day)) {
+    if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day)) {
       return helpers.error('any.invalid');
     }
     if (date > now) {
@@ -246,14 +165,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'white',
-    padding: 10
+    padding: 10,
   },
   containerBox: {
     flex: 1,
     alignContent: 'center',
     justifyContent: 'center',
-    margin: 30
-  }
+    margin: 30,
+  },
 });
 
 export default Register;

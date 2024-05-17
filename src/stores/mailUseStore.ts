@@ -5,9 +5,9 @@ type MailState = {
   setMail: (value: string) => void;
 };
 
-const useStore = create<MailState>()((set) => ({
+const mailUseStore = create<MailState>()((set) => ({
   storedMail: '',
   setMail: (value: string) => set({ storedMail: value }),
 }));
 
-export default useStore;
+export default mailUseStore;

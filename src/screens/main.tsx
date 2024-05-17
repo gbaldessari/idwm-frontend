@@ -8,85 +8,59 @@ import { RootStackParamList } from '../../App';
 
 const Main = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [loadingLogin, setLoadingLogin] = useState(false);
-  const [loadingRegister, setLoadingRegister] = useState(false);
-  const [isLoginPressed, setIsLoginPressed] = useState<boolean>(false);
-  const [isRegisterPressed, setIsRegisterPressed] = useState<boolean>(false);
+  const [loading, setLoading] = useState({ login: false, register: false });
+  const [isPressed, setIsPressed] = useState({ login: false, register: false });
 
-  const onLogin = async () => {
-    if (isRegisterPressed) {
-      return;
-    }
-    setIsLoginPressed(true);
-    setLoadingLogin(true);
-    setTimeout(() => {
-      setIsLoginPressed(false);
-      setLoadingLogin(false);
-      navigation.navigate('Login');
-    }, 1000);
+  const handleNavigation = (type: 'login' | 'register') => {
+    if (isPressed.login || isPressed.register) return;
+
+    setIsPressed((prevState) => ({ ...prevState, [type]: true }));
+    setLoading((prevState) => ({ ...prevState, [type]: true }));
+
+    setIsPressed((prevState) => ({ ...prevState, [type]: false }));
+    setLoading((prevState) => ({ ...prevState, [type]: false }));
+    navigation.navigate(type === 'login' ? 'Login' : 'Register');
   };
 
-  const onRegister = async () => {
-    if (isLoginPressed) {
-      return;
-    }
-    setIsRegisterPressed(true);
-    setLoadingRegister(true);
-    setTimeout(() => {
-      setIsRegisterPressed(false);
-      setLoadingRegister(false);
-      navigation.navigate('Register');
-    }, 1000);
-  };
-
-  const LoginButton = () => (
-    <Center>
-      <Button 
-        title={'Ingresar'}
-        onPress={onLogin}
-        loading={loadingLogin}
-        buttonStyle={{
-          marginVertical: 10,
-          backgroundColor: 'red'
-        }}
-        disabled = {isRegisterPressed}
-      />
-    </Center>
-  );
-
-  const RegisterButton = () => (
-    <Center>
-      <Button
-        title={'Registrarse'}
-        onPress={onRegister}
-        loading={loadingRegister}
-        buttonStyle={{
-          marginVertical: 10,
-          backgroundColor: 'red'
-        }}
-        disabled = {isLoginPressed}
-      />
-    </Center>
-  );
   return (
     <View style={styles.container}>
-      <StyledBox
-        text='MarcApp'
-      />
-      <LoginButton/>
-      <RegisterButton/>
+      <StyledBox text="MarcApp" />
+      <LoginButton onPress={() => handleNavigation('login')} loading={loading.login} disabled={isPressed.register} />
+      <RegisterButton onPress={() => handleNavigation('register')} loading={loading.register} disabled={isPressed.login} />
     </View>
   );
 };
 
 const StyledBox = ({ text }: { text: string }) => (
-  <View style = {styles.containerBox}>
+  <View style={styles.containerBox}>
     <Box>
-      <Text style={styles.title}>
-        {text}
-      </Text>
+      <Text style={styles.title}>{text}</Text>
     </Box>
   </View>
+);
+
+const LoginButton = ({ onPress, loading, disabled }: { onPress: () => void; loading: boolean; disabled: boolean }) => (
+  <Center>
+    <Button
+      title="Ingresar"
+      onPress={onPress}
+      loading={loading}
+      buttonStyle={styles.button}
+      disabled={disabled}
+    />
+  </Center>
+);
+
+const RegisterButton = ({ onPress, loading, disabled }: { onPress: () => void; loading: boolean; disabled: boolean }) => (
+  <Center>
+    <Button
+      title="Registrarse"
+      onPress={onPress}
+      loading={loading}
+      buttonStyle={styles.button}
+      disabled={disabled}
+    />
+  </Center>
 );
 
 const styles = StyleSheet.create({
@@ -94,19 +68,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'white',
-    padding: 10
+    padding: 10,
   },
   containerBox: {
     flex: 0,
     justifyContent: 'center',
-    marginVertical: 100
+    marginVertical: 100,
   },
   title: {
     fontSize: 60,
     textAlign: 'center',
     lineHeight: 60,
-    fontFamily: 'serif'
-  }
+    fontFamily: 'serif',
+  },
+  button: {
+    marginVertical: 10,
+    backgroundColor: 'red',
+  },
 });
 
 export default Main;

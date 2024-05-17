@@ -14,7 +14,8 @@ const loginService = async (
 
     return {
       success: true,
-      data: (await axios.post(endpoint, data))?.data?.message,
+      data: (await axios.post(endpoint, data))?.data
+      
     };
   } catch (e: unknown) {
     console.error(e);

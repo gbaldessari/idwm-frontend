@@ -10,32 +10,16 @@ const RecoverPassword = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const MainButton = () => (
-    <Center>
-      <Button
-      title = {'Volver al Inicio'}
-      onPress = {onMain}
-      loading = {loading}
-      buttonStyle={{ 
-        marginVertical: 10,
-        backgroundColor: 'red'
-        }}
-      />
-    </Center>
-  );
-
-  const onMain = async () => {
+  const onMain = () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigation.navigate('Main');
-    }, 1000);
+    setLoading(false);
+    navigation.navigate('Main');
   };
-  
+
   return (
     <StyledBox>
       <Text style={styles.title}>¡Revisa tu Correo!</Text>
-      <MainButton/>
+      <MainButton onPress={onMain} loading={loading} />
     </StyledBox>
   );
 };
@@ -48,6 +32,17 @@ const StyledBox = ({ children }: { children: React.ReactNode }) => (
   </View>
 );
 
+const MainButton = ({ onPress, loading }: { onPress: () => void; loading: boolean }) => (
+  <Center>
+    <Button
+      title="Volver al Inicio"
+      onPress={onPress}
+      loading={loading}
+      buttonStyle={styles.button}
+    />
+  </Center>
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -58,11 +53,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 35,
     textAlign: 'center',
-    lineHeight: 35
+    lineHeight: 35,
   },
-  userText: {
-    fontSize: 20,
-    textAlign: 'center'
-  }
+  button: {
+    marginVertical: 10,
+    backgroundColor: 'red',
+  },
 });
-export default RecoverPassword
+
+export default RecoverPassword;

@@ -4,7 +4,7 @@ import { Button, Input } from 'react-native-elements';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import { useNavigation } from '@react-navigation/native';
-import useStore from '../stores/useStore';
+import useStore from '../stores/mailUseStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { Center } from 'native-base';
@@ -14,48 +14,47 @@ type FormDataT = {
   email: string;
 };
 
-const InitData = {
+const InitData: FormDataT = {
   email: ''
 };
 
+const loginSchema = Joi.object({
+  email: Joi.string().email({ tlds: { allow: false } }).required()
+});
+
 const ForgottenPassword = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { storedMail } = useStore();
   const [data, setData] = useState<FormDataT>(InitData);
-  const {storedMail} = useStore();
   const [loadingRecover, setLoadingRecover] = useState<boolean>(false);
   const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
   const [validMail, setValidMail] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>(storedMail || '');
   const [errorMessageMail, setErrorMessageMail] = useState<string>('');
 
-  
-
   useEffect(() => {
-    const errors = loginSchema.validate({ email });
-    if (errors?.error?.details[0]?.context?.key === 'email') {
-      setErrorMessageMail(errors.error.details[0].message);
+    const { error } = loginSchema.validate({ email });
+    if (error) {
+      setErrorMessageMail(error.details[0].message);
       setValidMail(false);
-    } else{
+    } else {
       setErrorMessageMail('');
       setValidMail(true);
     }
-    return;
   }, [email]);
 
   const onRecover = async () => {
-    if(!validMail){
-      return;
-    }
+    if (!validMail) return;
+
     setIsDisabledText(true);
     setLoadingRecover(true);
-    const dataObj = {
-      email: email
-    }
-    const response = await RecoverPasswordService(dataObj);
+
+    const response = await RecoverPasswordService({ email });
     if (response?.success) {
       setData(InitData);
       navigation.navigate('Recover');
     }
+
     setIsDisabledText(false);
     setLoadingRecover(false);
   };
@@ -63,13 +62,10 @@ const ForgottenPassword = () => {
   const RecoverButton = () => (
     <Center>
       <Button
-        title={'Recuperar Contraseña'}
+        title='Recuperar Contraseña'
         onPress={onRecover}
         loading={loadingRecover}
-        buttonStyle={{
-          marginVertical: 10,
-          backgroundColor: 'red'
-        }}
+        buttonStyle={styles.recoverButton}
       />
     </Center>
   );
@@ -77,41 +73,41 @@ const ForgottenPassword = () => {
   return (
     <View style={styles.container}>
       <FormInput
-        label="Email"
-        placeholder="user@example.com"
+        label='Email'
+        placeholder='user@example.com'
         errorMessage={errorMessageMail}
-        onChangeText={(value: string) => setEmail(value)}
-        disabled = {isDisabledText}
-        defaultValue={storedMail}
+        onChangeText={setEmail}
+        disabled={isDisabledText}
+        defaultValue={email}
       />
-      <RecoverButton/>
+      <RecoverButton />
     </View>
   );
 };
 
-const loginSchema = Joi.object({
-  email: Joi.string().min(1).max(256).pattern(/^\S+@\S+\.\S+$/)
-});
-
-const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry, disabled, defaultValue }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean, disabled: boolean, defaultValue: string}) => (
+const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextEntry, disabled, defaultValue }: { label: string, placeholder: string, errorMessage: string, onChangeText: (value: string) => void, secureTextEntry?: boolean, disabled: boolean, defaultValue: string }) => (
   <Input
     label={label}
     placeholder={placeholder}
     errorMessage={errorMessage}
     onChangeText={onChangeText}
     secureTextEntry={secureTextEntry}
-    disabled = {disabled}
+    disabled={disabled}
     defaultValue={defaultValue}
   />
 );
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'white',
     padding: 20
+  },
+  recoverButton: {
+    marginVertical: 10,
+    backgroundColor: 'red'
   }
 });
 
-export default ForgottenPassword
+export default ForgottenPassword;
