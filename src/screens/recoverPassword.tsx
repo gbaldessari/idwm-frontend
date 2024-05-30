@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
-import ChangePasswordService from '../services/changePassword.service';
+import ChangeForgottenPasswordService from '../services/changeForgottenPassword.service';
 
 const passwordSchema = Joi.string().min(8).max(12).required().messages({
   'string.min': 'La contraseña debe tener al menos 8 caracteres',
@@ -43,7 +43,7 @@ const RecoverPassword = () => {
     setIsDisabled(true);
     // Handle the logic for applying the changes
     console.log({token,newPassword});
-    const response = await ChangePasswordService({token,newPassword});
+    const response = await ChangeForgottenPasswordService({token,newPassword});
     setLoading(false);
     if (response?.success) {
       // Optionally navigate to another screen or show a success message

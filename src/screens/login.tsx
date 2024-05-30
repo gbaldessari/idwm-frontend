@@ -38,7 +38,6 @@ const Login = () => {
   const [isForgottenPressed, setIsForgottenPressed] = useState<boolean>(false);
   const [isLoginPressed, setIsLoginPressed] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ email: string; password: string }>({ email: '', password: '' });
-
   const { email, password } = data;
 
   useEffect(() => {
@@ -83,7 +82,7 @@ const Login = () => {
       setMailStore(email);
       setTokenStore(access_token || "");
       setData(InitData);
-      navigation.navigate('Home');
+      navigation.navigate('Inside');
     }
   };
 

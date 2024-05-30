@@ -6,13 +6,13 @@ export type ScheduleServiceResponseT = {
   error?: string;
 };
 
-const scheduleService = async ( data: { token: string}
+const scheduleService = async ( payload: { token: string}
 ): Promise<ScheduleServiceResponseT> => {
   try {
     const endpoint: string = `${process.env.EXPO_PUBLIC_MS_REGISTER_URL}/registers/create-register`;
     return {
       success: true,
-      data: (await axios.post(endpoint, data))?.data,
+      data: (await axios.post(endpoint, payload))?.data,
     };
   } catch (e: unknown) {
     console.log(e);

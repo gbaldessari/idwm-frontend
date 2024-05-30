@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-export type ChangePasswordServiceResponseT = {
+export type ChangeForgottenPasswordServiceResponseT = {
     success: boolean;
     data?: string;
     error?: string;
 };
 
-const ChangePasswordService = async (payload: { token: string, newPassword: string}): Promise<ChangePasswordServiceResponseT> =>  {
+const ChangeForgottenPasswordService = async (payload: { token: string, newPassword: string}): Promise<ChangeForgottenPasswordServiceResponseT> =>  {
     try {
         console.log(payload);
         const endpoint : string = `${process.env.EXPO_PUBLIC_MS_USER_URL}/auth/password-reset`;
@@ -21,4 +21,4 @@ const ChangePasswordService = async (payload: { token: string, newPassword: stri
     }
 };
 
-export default ChangePasswordService;
+export default ChangeForgottenPasswordService;
