@@ -4,10 +4,11 @@ import { Button } from 'react-native-elements';
 import { Box, Text, VStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
-import ChangeForgottenPasswordService from '../services/changeForgottenPassword.service';
+import ChangePasswordService from '../../services/changePassword.service';
+import tokenUseStore from '../../stores/tokenUseStore';
+import { RootStackParamList } from '../../navigators/navigationTypes';
 
 const passwordSchema = Joi.string().min(8).max(12).required().messages({
   'string.min': 'La contraseña debe tener al menos 8 caracteres',
@@ -15,76 +16,102 @@ const passwordSchema = Joi.string().min(8).max(12).required().messages({
   'any.required': 'La contraseña es obligatoria',
 });
 
-const RecoverPassword = () => {
+const UpdatePassword = () => {
+  const { storedToken } = tokenUseStore();
+  const token = storedToken || '';
   const [loading, setLoading] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>('');
-  const [token, setToken] = useState<string>('');
+  const [oldPassword, setOldPassword] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [newPasswordError, setNewPasswordError] = useState<string>('');
+  const [oldPasswordError, setOldPasswordError] = useState<string>('');
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     const { error } = passwordSchema.validate(newPassword);
     if (error) {
-      setErrorMessage(error.details[0].message);
+      setNewPasswordError(error.details[0].message);
     } else {
-      setErrorMessage('');
+      setNewPasswordError('');
     }
   }, [newPassword]);
 
+  const validateOldPassword = (password: string) => {
+    if (!password) {
+      setOldPasswordError('La contraseña actual es obligatoria');
+      return false;
+    }
+    setOldPasswordError('');
+    return true;
+  };
+
   const onApplyChanges = async () => {
-    // Validate the password
+    const isOldPasswordValid = validateOldPassword(oldPassword);
     const { error } = passwordSchema.validate(newPassword);
+
     if (error) {
-      setErrorMessage(error.details[0].message);
+      setNewPasswordError(error.details[0].message);
+    } else {
+      setNewPasswordError('');
+    }
+
+    if (!isOldPasswordValid || error) {
       return;
     }
+
     setLoading(true);
-    setIsDisabled(true);
-    // Handle the logic for applying the changes
-    console.log({token,newPassword});
-    const response = await ChangeForgottenPasswordService({token,newPassword});
+    const response = await ChangePasswordService({ token, oldPassword, newPassword });
     setLoading(false);
+
     if (response?.success) {
-      // Optionally navigate to another screen or show a success message
-      navigation.navigate('Main');
+      navigation.navigate('Settings');
+    } else {
+      setErrorMessage(response?.error || 'Error al cambiar la contraseña');
     }
   };
 
   return (
     <StyledBox>
-      <Text style={styles.title}>¡Revisa tu Correo!</Text>
       <VStack space={4} alignItems='center'>
-        <TextInput
+        <PasswordInput
+          placeholder="Contraseña Actual"
+          value={oldPassword}
+          onChangeText={setOldPassword}
+          errorMessage={oldPasswordError}
+        />
+        
+        <PasswordInput
           placeholder="Nueva Contraseña"
-          secureTextEntry
-          style={styles.input}
           value={newPassword}
           onChangeText={setNewPassword}
+          errorMessage={newPasswordError}
         />
+        
         {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-        <TextInput
-          placeholder="Código de Autenticación"
-          style={styles.input}
-          value={token}
-          onChangeText={setToken}
-        />
+        
         <Button
           title="Aplicar Cambios"
           onPress={onApplyChanges}
           loading={loading}
           buttonStyle={styles.button}
         />
-        <Button
-          title="Volver"
-          onPress={() => navigation.navigate('Forgotten')}
-          buttonStyle={styles.button}
-          disabled={isDisabled}
-        />
       </VStack>
     </StyledBox>
   );
 };
+
+const PasswordInput = ({ placeholder, value, onChangeText, errorMessage }: any) => (
+  <>
+    <TextInput
+      placeholder={placeholder}
+      secureTextEntry
+      style={styles.input}
+      value={value}
+      onChangeText={onChangeText}
+    />
+    {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+  </>
+);
 
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
   <View style={styles.container}>
@@ -100,12 +127,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'white',
     padding: 10,
-  },
-  title: {
-    fontSize: 35,
-    textAlign: 'center',
-    lineHeight: 35,
-    marginBottom: 20,
   },
   input: {
     width: '80%',
@@ -125,4 +146,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RecoverPassword;
+export default UpdatePassword;

@@ -3,13 +3,13 @@ import { View, StyleSheet } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
-import loginService from '../services/login.service';
+import loginService from '../../services/login.service';
 import { useNavigation } from '@react-navigation/native';
-import mailUseStore from '../stores/mailUseStore';
+import mailUseStore from '../../stores/mailUseStore';
+import tokenUseStore from '../../stores/tokenUseStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
 import { Center } from 'native-base';
-import tokenUseStore from '../stores/tokenUseStore';
+import { RootStackParamList } from '../../navigators/navigationTypes';
 
 type FormDataT = {
   email: string;
@@ -28,8 +28,8 @@ const loginSchema = Joi.object({
 
 const Login = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const {setMail: setMailStore } = mailUseStore();
-  const {setToken: setTokenStore} = tokenUseStore();
+  const { setMail: setMailStore } = mailUseStore();
+  const { setToken: setTokenStore } = tokenUseStore();
 
   const [data, setData] = useState<FormDataT>(InitData);
   const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
@@ -103,7 +103,7 @@ const Login = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <StyledContainer>
       <FormInput
         label="Email"
         placeholder="user@example.com"
@@ -121,7 +121,7 @@ const Login = () => {
       />
       <LoginButton onPress={onLogin} loading={loadingLogin} disabled={isForgottenPressed} />
       <ForgottenButton onPress={onForgotten} loading={loadingForgotten} disabled={isLoginPressed} />
-    </View>
+    </StyledContainer>
   );
 };
 
@@ -173,6 +173,10 @@ const ForgottenButton = ({ onPress, loading, disabled }: { onPress: () => void; 
       disabled={disabled}
     />
   </Center>
+);
+
+const StyledContainer = ({ children }: { children: React.ReactNode }) => (
+  <View style={styles.container}>{children}</View>
 );
 
 const styles = StyleSheet.create({

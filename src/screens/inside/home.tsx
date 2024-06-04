@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Box, Text } from 'native-base';
 import { Button } from 'react-native-elements';
-import mailUseStore from '../stores/mailUseStore';
-import tokenUseStore from '../stores/tokenUseStore';
-import scheduleService from '../services/schedule.service';
+import mailUseStore from '../../stores/mailUseStore';
+import tokenUseStore from '../../stores/tokenUseStore';
+import scheduleService from '../../services/schedule.service';
 
 const Home = () => {
   const { storedMail } = mailUseStore();
@@ -13,10 +13,9 @@ const Home = () => {
 
   const handlePress = async () => {
     setLoading(true);
-
     const token: string = storedToken || "";
     const response = await scheduleService({ token });
-    console.log(response)
+    console.log(response);
     setLoading(false);
   };
 
@@ -24,22 +23,24 @@ const Home = () => {
     <StyledBox>
       <Text style={styles.title}>Bienvenido</Text>
       <Text style={styles.userText}>{storedMail}</Text>
-      <Button
-        title="Marcar horario"
-        onPress={handlePress}
-        loading={loading}
-        containerStyle={styles.buttonContainer}
-        buttonStyle={styles.button}
-      />
+      <ScheduleButton title="Marcar horario" onPress={handlePress} loading={loading} />
     </StyledBox>
   );
 };
 
+const ScheduleButton = ({ title, onPress, loading }: { title: string; onPress: () => void; loading: boolean }) => (
+  <Button
+    title={title}
+    onPress={onPress}
+    loading={loading}
+    containerStyle={styles.buttonContainer}
+    buttonStyle={styles.button}
+  />
+);
+
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
   <View style={styles.container}>
-    <Box>
-      {children}
-    </Box>
+    <Box>{children}</Box>
   </View>
 );
 
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#6200ee',
     height: 60,
-  }
+  },
 });
 
 export default Home;

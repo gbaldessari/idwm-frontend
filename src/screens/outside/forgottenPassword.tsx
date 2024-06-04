@@ -4,11 +4,11 @@ import { Button, Input } from 'react-native-elements';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import { useNavigation } from '@react-navigation/native';
-import useStore from '../stores/mailUseStore';
+import useStore from '../../stores/mailUseStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
 import { Center } from 'native-base';
-import RecoverPasswordService from '../services/recoverPassword.service';
+import RecoverPasswordService from '../../services/recoverPassword.service';
+import { RootStackParamList } from '../../navigators/navigationTypes';
 
 type FormDataT = {
   email: string;
@@ -59,19 +59,8 @@ const ForgottenPassword = () => {
     setLoadingRecover(false);
   };
 
-  const RecoverButton = () => (
-    <Center>
-      <Button
-        title='Recuperar Contraseña'
-        onPress={onRecover}
-        loading={loadingRecover}
-        buttonStyle={styles.recoverButton}
-      />
-    </Center>
-  );
-
   return (
-    <View style={styles.container}>
+    <StyledContainer>
       <FormInput
         label='Email'
         placeholder='user@example.com'
@@ -80,8 +69,8 @@ const ForgottenPassword = () => {
         disabled={isDisabledText}
         defaultValue={email}
       />
-      <RecoverButton />
-    </View>
+      <RecoverButton title='Recuperar Contraseña' onPress={onRecover} loading={loadingRecover} />
+    </StyledContainer>
   );
 };
 
@@ -95,6 +84,21 @@ const FormInput = ({ label, placeholder, errorMessage, onChangeText, secureTextE
     disabled={disabled}
     defaultValue={defaultValue}
   />
+);
+
+const RecoverButton = ({ title, onPress, loading }: { title: string, onPress: () => void, loading: boolean }) => (
+  <Center>
+    <Button
+      title={title}
+      onPress={onPress}
+      loading={loading}
+      buttonStyle={styles.recoverButton}
+    />
+  </Center>
+);
+
+const StyledContainer = ({ children }: { children: React.ReactNode }) => (
+  <View style={styles.container}>{children}</View>
 );
 
 const styles = StyleSheet.create({
