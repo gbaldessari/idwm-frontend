@@ -10,57 +10,63 @@ import ChangePasswordService from '../../services/changePassword.service';
 import tokenUseStore from '../../stores/tokenUseStore';
 import { RootStackParamList } from '../../navigators/navigationTypes';
 
-const passwordSchema = Joi.string().min(8).max(12).required().messages({
-  'string.min': 'La contraseña debe tener al menos 8 caracteres',
-  'string.max': 'La contraseña no debe tener más de 12 caracteres',
-  'any.required': 'La contraseña es obligatoria',
+interface PasswordData {
+  oldPassword: string;
+  newPassword: string;
+}
+
+interface Errors {
+  [key: string]: string | undefined;
+}
+
+const passwordSchema = Joi.object({
+  oldPassword: Joi.string().min(8).max(12).required().messages({
+    'string.empty': 'La contraseña actual es obligatoria',
+    'string.min': 'La contraseña debe tener al menos 8 caracteres',
+    'string.max': 'La contraseña no debe tener más de 12 caracteres',
+  }),
+  newPassword: Joi.string().min(8).max(12).required().messages({
+    'string.empty': 'La nueva contraseña es obligatoria',
+    'string.min': 'La nueva contraseña debe tener al menos 8 caracteres',
+    'string.max': 'La nueva contraseña no debe tener más de 12 caracteres',
+  }),
 });
 
 const UpdatePassword = () => {
   const { storedToken } = tokenUseStore();
   const token = storedToken || '';
-  const [loading, setLoading] = useState<boolean>(false);
-  const [newPassword, setNewPassword] = useState<string>('');
-  const [oldPassword, setOldPassword] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [newPasswordError, setNewPasswordError] = useState<string>('');
-  const [oldPasswordError, setOldPasswordError] = useState<string>('');
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    const { error } = passwordSchema.validate(newPassword);
-    if (error) {
-      setNewPasswordError(error.details[0].message);
-    } else {
-      setNewPasswordError('');
-    }
-  }, [newPassword]);
+  const [passwordData, setPasswordData] = useState<PasswordData>({
+    oldPassword: '',
+    newPassword: '',
+  });
+  const [errors, setErrors] = useState<Errors>({});
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const validateOldPassword = (password: string) => {
-    if (!password) {
-      setOldPasswordError('La contraseña actual es obligatoria');
-      return false;
-    }
-    setOldPasswordError('');
-    return true;
+  const handleChange = (name: string, value: string) => {
+    setPasswordData({ ...passwordData, [name]: value });
+  };
+
+  const validate = () => {
+    const result = passwordSchema.validate(passwordData, { abortEarly: false });
+    if (!result.error) return null;
+
+    const errorMessages: Errors = result.error.details.reduce((acc: Errors, item) => {
+      acc[item.path[0] as string] = item.message;
+      return acc;
+    }, {});
+    return errorMessages;
   };
 
   const onApplyChanges = async () => {
-    const isOldPasswordValid = validateOldPassword(oldPassword);
-    const { error } = passwordSchema.validate(newPassword);
-
-    if (error) {
-      setNewPasswordError(error.details[0].message);
-    } else {
-      setNewPasswordError('');
-    }
-
-    if (!isOldPasswordValid || error) {
-      return;
-    }
+    const errors = validate();
+    setErrors(errors || {});
+    if (errors) return;
 
     setLoading(true);
-    const response = await ChangePasswordService({ token, oldPassword, newPassword });
+    const response = await ChangePasswordService({ token, ...passwordData });
     setLoading(false);
 
     if (response?.success) {
@@ -72,23 +78,22 @@ const UpdatePassword = () => {
 
   return (
     <StyledBox>
-      <VStack space={4} alignItems='center'>
-        <PasswordInput
+      <VStack space={4} alignItems="center">
+        <CustomInput
           placeholder="Contraseña Actual"
-          value={oldPassword}
-          onChangeText={setOldPassword}
-          errorMessage={oldPasswordError}
+          value={passwordData.oldPassword}
+          onChangeText={(value: string) => handleChange('oldPassword', value)}
+          errorMessage={errors.oldPassword}
+          secureTextEntry
         />
-        
-        <PasswordInput
+        <CustomInput
           placeholder="Nueva Contraseña"
-          value={newPassword}
-          onChangeText={setNewPassword}
-          errorMessage={newPasswordError}
+          value={passwordData.newPassword}
+          onChangeText={(value: string) => handleChange('newPassword', value)}
+          errorMessage={errors.newPassword}
+          secureTextEntry
         />
-        
         {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-        
         <Button
           title="Aplicar Cambios"
           onPress={onApplyChanges}
@@ -100,17 +105,17 @@ const UpdatePassword = () => {
   );
 };
 
-const PasswordInput = ({ placeholder, value, onChangeText, errorMessage }: any) => (
-  <>
+const CustomInput = ({ placeholder, value, onChangeText, errorMessage, secureTextEntry }: { placeholder: string; value: string; onChangeText: (value: string) => void; errorMessage?: string; secureTextEntry?: boolean }) => (
+  <View style={{ width: '80%', alignItems: 'center' }}>
     <TextInput
-      placeholder={placeholder}
-      secureTextEntry
       style={styles.input}
+      placeholder={placeholder}
       value={value}
       onChangeText={onChangeText}
+      secureTextEntry={secureTextEntry}
     />
     {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-  </>
+  </View>
 );
 
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
@@ -129,7 +134,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   input: {
-    width: '80%',
+    width: '100%',
     padding: 10,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 10,
-    backgroundColor: 'red',
+    backgroundColor: '#6200ee',
   },
   error: {
     color: 'red',

@@ -1,182 +1,153 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TextInput } from 'react-native';
+import { Button } from 'react-native-elements';
+import { useNavigation } from '@react-navigation/native';
+import { Box, Center, Text, AlertDialog } from 'native-base';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import loginService from '../../services/login.service';
-import { useNavigation } from '@react-navigation/native';
 import mailUseStore from '../../stores/mailUseStore';
 import tokenUseStore from '../../stores/tokenUseStore';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Center } from 'native-base';
 import { RootStackParamList } from '../../navigators/navigationTypes';
 
-type FormDataT = {
+interface FormData {
   email: string;
   password: string;
-};
+}
 
-const InitData: FormDataT = {
-  email: '',
-  password: '',
-};
+interface Errors {
+  [key: string]: string | undefined;
+}
 
 const loginSchema = Joi.object({
-  email: Joi.string().email({ tlds: { allow: false } }).required(),
-  password: Joi.string().min(8).max(12).required(),
+  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
+    'string.empty': 'El correo electrónico es requerido.',
+    'string.email': 'El correo electrónico debe ser válido.'
+  }),
+  password: Joi.string().min(8).max(12).required().messages({
+    'string.empty': 'La contraseña es requerida.',
+    'string.min': 'La contraseña debe tener al menos 8 caracteres.',
+    'string.max': 'La contraseña no puede exceder los 12 caracteres.'
+  }),
 });
 
 const Login = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { setMail: setMailStore } = mailUseStore();
   const { setToken: setTokenStore } = tokenUseStore();
+  const [formData, setFormData] = useState<FormData>({
+    email: '',
+    password: ''
+  });
+  const [errors, setErrors] = useState<Errors>({});
+  const [loadingLogin, setLoadingLogin] = useState(false);
+  const [loadingForgotten, setLoadingForgotten] = useState(false);
+  const [alert, setAlert] = useState(false);
+  const cancelRef = React.useRef(null);
 
-  const [data, setData] = useState<FormDataT>(InitData);
-  const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
-  const [loadingForgotten, setLoadingForgotten] = useState<boolean>(false);
-  const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
-  const [isForgottenPressed, setIsForgottenPressed] = useState<boolean>(false);
-  const [isLoginPressed, setIsLoginPressed] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ email: string; password: string }>({ email: '', password: '' });
-  const { email, password } = data;
-
-  useEffect(() => {
-    const validate = () => {
-      const { error } = loginSchema.validate(data, { abortEarly: false });
-      if (error) {
-        const errorDetails = error.details.reduce(
-          (acc, { context, message }) => {
-            acc[context?.key as keyof FormDataT] = message;
-            return acc;
-          },
-          { email: '', password: '' }
-        );
-        setErrors(errorDetails);
-      } else {
-        setErrors({ email: '', password: '' });
-      }
-    };
-
-    validate();
-  }, [data]);
-
-  const handleChange = (field: keyof FormDataT, value: string) => {
-    setData((prevData) => ({ ...prevData, [field]: value }));
+  const handleChange = (name: string, value: string) => {
+    setFormData({ ...formData, [name]: value });
   };
 
-  const onLogin = async () => {
-    if (errors.email || errors.password || isForgottenPressed) return;
+  useEffect(() => {
+    const { error } = loginSchema.validate(formData, { abortEarly: false });
+    if (error) {
+      const errorMessages: Errors = error.details.reduce((acc: Errors, item) => {
+        acc[item.path[0] as string] = item.message;
+        return acc;
+      }, {});
+      setErrors(errorMessages);
+    } else {
+      setErrors({});
+    }
+  }, [formData]);
 
-    setIsLoginPressed(true);
-    setIsDisabledText(true);
+  const handleSubmit = async () => {
+    const { error } = loginSchema.validate(formData, { abortEarly: false });
+    if (error) {
+      const errorMessages: Errors = error.details.reduce((acc: Errors, item) => {
+        acc[item.path[0] as string] = item.message;
+        return acc;
+      }, {});
+      setErrors(errorMessages);
+      return;
+    }
+
     setLoadingLogin(true);
-
-    const response = await loginService({ email, password });
-    const access_token = response?.data?.token;
-
-    setIsLoginPressed(false);
-    setIsDisabledText(false);
+    const response = await loginService(formData);
     setLoadingLogin(false);
 
     if (response?.success) {
-      setMailStore(email);
+      const access_token = response?.data?.token;
+      setMailStore(formData.email);
       setTokenStore(access_token || "");
-      setData(InitData);
+      setFormData({ email: '', password: '' });
       navigation.navigate('Inside');
+    } else {
+      setAlert(true);
     }
   };
 
-  const onForgotten = async () => {
-    if (isLoginPressed) return;
-
-    setIsForgottenPressed(true);
-    setIsDisabledText(true);
-    setLoadingForgotten(true);
-
-    setTimeout(() => {
-      setMailStore(email);
-      setIsForgottenPressed(false);
-      setIsDisabledText(false);
-      setLoadingForgotten(false);
-      navigation.navigate('Forgotten');
-    }, 1000);
-  };
-
   return (
-    <StyledContainer>
-      <FormInput
-        label="Email"
-        placeholder="user@example.com"
-        errorMessage={errors.email}
+    <View style={styles.container}>
+      <CustomInput
+        placeholder="Correo Electrónico"
+        value={formData.email}
         onChangeText={(value: string) => handleChange('email', value)}
-        disabled={isDisabledText}
+        errorMessage={errors.email}
       />
-      <FormInput
-        label="Contraseña"
-        placeholder="********"
-        errorMessage={errors.password}
+      <CustomInput
+        placeholder="Contraseña"
+        value={formData.password}
         onChangeText={(value: string) => handleChange('password', value)}
+        errorMessage={errors.password}
         secureTextEntry
-        disabled={isDisabledText}
       />
-      <LoginButton onPress={onLogin} loading={loadingLogin} disabled={isForgottenPressed} />
-      <ForgottenButton onPress={onForgotten} loading={loadingForgotten} disabled={isLoginPressed} />
-    </StyledContainer>
+      <Center>
+        <Button
+          title="Ingresar"
+          onPress={handleSubmit}
+          loading={loadingLogin}
+          buttonStyle={styles.button}
+        />
+        <Button
+          title="¿Olvidó su contraseña?"
+          onPress={() => navigation.navigate('Forgotten')}
+          type="clear"
+          titleStyle={styles.forgottenButtonTitle}
+        />
+      </Center>
+      <CustomAlertDialog
+        alert={alert}
+        message="Inicio de sesión fallido"
+        onClose={() => setAlert(false)}
+        cancelRef={cancelRef}
+      />
+    </View>
   );
 };
 
-const FormInput = ({
-  label,
-  placeholder,
-  errorMessage,
-  onChangeText,
-  secureTextEntry,
-  disabled,
-}: {
-  label: string;
-  placeholder: string;
-  errorMessage: string;
-  onChangeText: (value: string) => void;
-  secureTextEntry?: boolean;
-  disabled: boolean;
-}) => (
-  <Input
-    label={label}
-    placeholder={placeholder}
-    errorMessage={errorMessage}
-    onChangeText={onChangeText}
-    secureTextEntry={secureTextEntry}
-    disabled={disabled}
-  />
-);
-
-const LoginButton = ({ onPress, loading, disabled }: { onPress: () => void; loading: boolean; disabled: boolean }) => (
-  <Center>
-    <Button
-      title="Ingresar"
-      onPress={onPress}
-      loading={loading}
-      buttonStyle={styles.loginButton}
-      disabled={disabled}
+const CustomInput = ({ placeholder, value, onChangeText, errorMessage, secureTextEntry }: { placeholder: string; value: string; onChangeText: (value: string) => void; errorMessage?: string; secureTextEntry?: boolean }) => (
+  <>
+    <TextInput
+      style={styles.input}
+      placeholder={placeholder}
+      value={value}
+      onChangeText={onChangeText}
+      secureTextEntry={secureTextEntry}
     />
-  </Center>
+    {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+  </>
 );
 
-const ForgottenButton = ({ onPress, loading, disabled }: { onPress: () => void; loading: boolean; disabled: boolean }) => (
-  <Center>
-    <Button
-      title="¿Olvido su contraseña?"
-      onPress={onPress}
-      loading={loading}
-      type="clear"
-      titleStyle={styles.forgottenButtonTitle}
-      disabled={disabled}
-    />
-  </Center>
-);
-
-const StyledContainer = ({ children }: { children: React.ReactNode }) => (
-  <View style={styles.container}>{children}</View>
+const CustomAlertDialog = ({ alert, message, onClose, cancelRef }: { alert: boolean; message: string; onClose: () => void; cancelRef: React.RefObject<any> }) => (
+  <AlertDialog leastDestructiveRef={cancelRef} isOpen={alert} onClose={onClose}>
+    <AlertDialog.Content>
+      <AlertDialog.CloseButton />
+      <AlertDialog.Body>{message}</AlertDialog.Body>
+    </AlertDialog.Content>
+  </AlertDialog>
 );
 
 const styles = StyleSheet.create({
@@ -184,9 +155,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'white',
-    padding: 20,
+    padding: 10,
   },
-  loginButton: {
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  button: {
     marginVertical: 10,
     backgroundColor: '#6200ee',
   },

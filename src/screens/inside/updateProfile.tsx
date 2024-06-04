@@ -85,8 +85,21 @@ const UpdateProfile = () => {
     }, [token]);
 
     const handleInputChange = (field: keyof FormDataT) => (value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        validateField(field, value);
+        let formattedValue = value;
+        if (field === 'birthdate') {
+            formattedValue = formatDateString(value);
+        }
+        setFormData(prev => ({ ...prev, [field]: formattedValue }));
+        validateField(field, formattedValue);
+    };
+
+    const formatDateString = (value: string) => {
+        const cleaned = value.replace(/\D/g, '');
+        const match = cleaned.match(/^(\d{0,2})(\d{0,2})(\d{0,4})$/);
+        if (match) {
+            return [match[1], match[2], match[3]].filter(Boolean).join('/');
+        }
+        return value;
     };
 
     const validateField = (field: keyof FormDataT, value: string) => {

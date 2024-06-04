@@ -6,37 +6,21 @@ export type LoginServiceResponseT = {
   error?: string;
 };
 
-const loginService = async (
-  data: Record<string, string>
-): Promise<LoginServiceResponseT> => {
+const loginService = async (payload : {email: string, password: string}): Promise<LoginServiceResponseT> => {
   try {
+
     const endpoint: string = `${process.env.EXPO_PUBLIC_MS_USER_URL}/auth/login`;
+
+    const response = await axios.post(endpoint, payload);
 
     return {
       success: true,
-      data: (await axios.post(endpoint, data))?.data
-      
+      data: response.data
     };
   } catch (e: unknown) {
-    console.error(e);
     let error = 'Ha ocurrido un error';
-    console.log({
-      e: (e as Record<string, Record<string, Record<string, unknown>>>)
-        ?.response?.data,
-    });
-    switch (
-      (e as Record<string, Record<string, Record<string, unknown>>>)?.response
-        ?.data?.message
-    ) {
-      case 'Usuario no encontrado':
-        error = 'El email no está registrado';
-        break;
-      case 'Contraseña incorrecta':
-        error = 'La contraseña es incorrecta';
-        break;
-    }
-
-    return { success: false, error };
+    console.log(e);
+    return { success: false, error};
   }
 };
 
