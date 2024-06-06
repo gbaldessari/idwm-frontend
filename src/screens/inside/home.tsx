@@ -5,25 +5,45 @@ import { Button } from 'react-native-elements';
 import mailUseStore from '../../stores/mailUseStore';
 import tokenUseStore from '../../stores/tokenUseStore';
 import scheduleService from '../../services/schedule.service';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigators/navigationTypes';
 
 const Home = () => {
   const { storedMail } = mailUseStore();
   const { storedToken } = tokenUseStore();
   const [loading, setLoading] = useState<boolean>(false);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const handlePress = async () => {
+  const handlePressEntry = async () => {
     setLoading(true);
     const token: string = storedToken || "";
-    const response = await scheduleService({ token });
+    const isEntry: boolean = true;
+    const response = await scheduleService({ token, isEntry});
     console.log(response);
     setLoading(false);
+  };
+
+  const handlePressExit = async () => {
+    setLoading(true);
+    const token: string = storedToken || "";
+    const isEntry: boolean = false;
+    const response = await scheduleService({ token, isEntry});
+    console.log(response);
+    setLoading(false);
+  };
+
+  const handlePressWeekResume = async () => {
+    navigation.navigate('WeekResume');
   };
 
   return (
     <StyledBox>
       <Text style={styles.title}>Bienvenido</Text>
       <Text style={styles.userText}>{storedMail}</Text>
-      <ScheduleButton title="Marcar horario" onPress={handlePress} loading={loading} />
+      <ScheduleButton title="Marcar Entrada" onPress={handlePressEntry} loading={loading} />
+      <ScheduleButton title="Marcar Salida" onPress={handlePressExit} loading={loading} />
+      <ScheduleButton title="Resumen de la semana" onPress={handlePressWeekResume} loading={loading} />
     </StyledBox>
   );
 };
@@ -70,6 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#6200ee',
     height: 60,
+    marginVertical: 10,
   },
 });
 

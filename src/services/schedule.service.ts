@@ -6,7 +6,7 @@ export type ScheduleServiceResponseT = {
   error?: string;
 };
 
-const scheduleService = async ( payload: { token: string}
+const scheduleService = async ( payload: { token: string, isEntry: boolean}
 ): Promise<ScheduleServiceResponseT> => {
   try {
     const endpoint: string = `${process.env.EXPO_PUBLIC_MS_REGISTER_URL}/registers/create-register`;

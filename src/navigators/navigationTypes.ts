@@ -1,8 +1,9 @@
 export type RootStackParamList = {
-    PreEntry: undefined;
+    Outside: undefined;
     Inside: undefined;
     Main: undefined;
     Home: undefined;
+    Inicio: undefined;
     Register: undefined;
     Login: undefined;
     Forgotten: undefined;
@@ -11,5 +12,6 @@ export type RootStackParamList = {
     Settings: undefined;
     UpdateProfile: undefined;
     UpdatePassword: undefined;
+    WeekResume: undefined;
   };
   

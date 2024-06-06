@@ -18,7 +18,7 @@ const App = () => {
         <NativeBaseProvider>
           <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="PreEntry" component={CustomStackNavigator} />
+              <Stack.Screen name="Outside" component={CustomStackNavigator} />
               <Stack.Screen name="Inside" component={CustomTabNavigator} />
             </Stack.Navigator>
           </NavigationContainer>
