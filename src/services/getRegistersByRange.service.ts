@@ -6,17 +6,16 @@ export type GetRegistersByRangeServiceResponseT = {
   error?: string;
 };
 
-const getRegistersByRangeService = async (payload: { token: string; startDate: string; endDate: string }): Promise<GetRegistersByRangeServiceResponseT> => {
+const getRegistersByRangeService = async (payload: { token: string, startDate: string, endDate: string }): Promise<GetRegistersByRangeServiceResponseT> => {
   try {
-    const endpoint = `${process.env.EXPO_PUBLIC_MS_REGISTER_URL}/registers/get-registers-by-rangeData`;
+    const endpoint: string = `${process.env.EXPO_PUBLIC_MS_REGISTER_URL}/registers/get-registers-by-rangeData`;
+    console.log('Requesting registers with payload:', payload); // Registro de la carga útil
     const response = await axios.post(endpoint, payload);
-    return {
-      success: true,
-      data: response.data,
-    };
-  } catch (e) {
-    console.error(e);
-    return { success: false, error: 'Ha ocurrido un error' };
+    return { success: true, data: response.data };
+  } catch (e: unknown) {
+    console.error('Error fetching registers:', e); // Registro del error
+    let error = 'Ha ocurrido un error';
+    return { success: false, error };
   }
 };
 
