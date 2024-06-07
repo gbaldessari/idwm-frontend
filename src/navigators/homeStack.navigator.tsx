@@ -1,21 +1,23 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './navigationTypes';
-import WeekResume from '../screens/inside/weekResume';
-import Home from '../screens/inside/home';
+import { NavigationRoutes } from './types/navigationRoutes.type';
+import WeekResumeScreen from '../screens/inside/weekResume.screen';
+import HomeScreen from '../screens/inside/home.screen';
+import AdminMenuScreen from '../screens/inside/adminMenu.screen';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<NavigationRoutes>();
 
 type ScreenHome = {
-  name: keyof RootStackParamList;
+  name: keyof NavigationRoutes;
   component: React.ComponentType<any>;
   headerShown?: boolean;
   title?: string;
 };
 
 const homeScreens: ScreenHome[] = [
-  { name: 'Home', component: Home, headerShown: false },
-  { name: 'WeekResume', component: WeekResume, headerShown: true, title: 'Resumen de la Semana' }
+  { name: 'Home', component: HomeScreen, headerShown: false },
+  { name: 'WeekResume', component: WeekResumeScreen, headerShown: true, title: 'Resumen de la Semana' },
+  { name: 'AdminMenu', component: AdminMenuScreen, headerShown: true, title: 'Menu de Administrador' }
 ];
 
 const HomeStackNavigator = () => (

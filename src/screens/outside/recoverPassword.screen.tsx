@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import ChangeForgottenPasswordService from '../../services/changeForgottenPassword.service';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
 const passwordSchema = Joi.string().min(8).max(12).required().messages({
   'string.min': 'La contraseña debe tener al menos 8 caracteres',
@@ -15,13 +15,13 @@ const passwordSchema = Joi.string().min(8).max(12).required().messages({
   'any.required': 'La contraseña es obligatoria',
 });
 
-const RecoverPassword = () => {
+const RecoverPasswordScreen = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>('');
   const [token, setToken] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   useEffect(() => {
     const { error } = passwordSchema.validate(newPassword);
@@ -164,4 +164,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RecoverPassword;
+export default RecoverPasswordScreen;

@@ -7,8 +7,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import ChangePasswordService from '../../services/changePassword.service';
-import tokenUseStore from '../../stores/tokenUseStore';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import tokenUseStore from '../../useStores/token.useStore';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
 interface PasswordData {
   oldPassword: string;
@@ -32,10 +32,10 @@ const passwordSchema = Joi.object({
   }),
 });
 
-const UpdatePassword = () => {
+const UpdatePasswordScreen = () => {
   const { storedToken } = tokenUseStore();
   const token = storedToken || '';
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   const [passwordData, setPasswordData] = useState<PasswordData>({
     oldPassword: '',
@@ -151,4 +151,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UpdatePassword;
+export default UpdatePasswordScreen;

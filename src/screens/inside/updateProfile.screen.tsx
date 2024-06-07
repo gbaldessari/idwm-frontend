@@ -3,13 +3,13 @@ import { Box, Center, VStack, AlertDialog, Spinner } from 'native-base';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import getUserDataService from "../../services/getUserData.service";
-import tokenUseStore from "../../stores/tokenUseStore";
+import tokenUseStore from "../../useStores/token.useStore";
 import { useNavigation } from '@react-navigation/core';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import updateUserDataService from '../../services/updateUserData.service';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
 type FormDataT = {
     name: string;
@@ -40,10 +40,10 @@ const updateProfileSchema = Joi.object({
     }, 'Fecha de nacimiento')
 });
 
-const UpdateProfile = () => {
+const UpdateProfileScreen = () => {
     const { storedToken } = tokenUseStore();
     const token = storedToken || '';
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
     const [formData, setFormData] = useState<FormDataT>(InitData);
     const [alert, setAlert] = useState<boolean>(false);
@@ -231,4 +231,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default UpdateProfile;
+export default UpdateProfileScreen;

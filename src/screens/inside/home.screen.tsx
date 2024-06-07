@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Box, Text } from 'native-base';
 import { Button } from 'react-native-elements';
-import mailUseStore from '../../stores/mailUseStore';
-import tokenUseStore from '../../stores/tokenUseStore';
+import tokenUseStore from '../../useStores/token.useStore';
 import scheduleService from '../../services/schedule.service';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import isAdminUseStore from '../../useStores/isAdmin.useStore';
 
-const Home = () => {
-  const { storedMail } = mailUseStore();
+const HomeScreen = () => {
   const { storedToken } = tokenUseStore();
+  const { storedIsAdmin } = isAdminUseStore();
   const [loading, setLoading] = useState<boolean>(false);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   const handlePressEntry = async () => {
     setLoading(true);
@@ -37,13 +37,21 @@ const Home = () => {
     navigation.navigate('WeekResume');
   };
 
+  const handlePressAdmin = async () => {
+    navigation.navigate('AdminMenu');
+  };
+
+  
+
   return (
     <StyledBox>
       <Text style={styles.title}>Bienvenido</Text>
-      <Text style={styles.userText}>{storedMail}</Text>
       <ScheduleButton title="Marcar Entrada" onPress={handlePressEntry} loading={loading} />
       <ScheduleButton title="Marcar Salida" onPress={handlePressExit} loading={loading} />
       <ScheduleButton title="Resumen de la semana" onPress={handlePressWeekResume} loading={loading} />
+      {storedIsAdmin !== 3&& (
+        <ScheduleButton title="Menu Administrador" onPress={handlePressAdmin} loading={loading} />
+      )}
     </StyledBox>
   );
 };
@@ -94,4 +102,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default HomeScreen;

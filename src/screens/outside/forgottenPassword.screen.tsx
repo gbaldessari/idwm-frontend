@@ -4,11 +4,11 @@ import { Button, Input } from 'react-native-elements';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import { useNavigation } from '@react-navigation/native';
-import useStore from '../../stores/mailUseStore';
+import useStore from '../../useStores/mail.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Center } from 'native-base';
 import RecoverPasswordService from '../../services/recoverPassword.service';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
 type FormDataT = {
   email: string;
@@ -22,10 +22,9 @@ const loginSchema = Joi.object({
   email: Joi.string().email({ tlds: { allow: false } }).required()
 });
 
-const ForgottenPassword = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const ForgottenPasswordScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
   const { storedMail } = useStore();
-  const [data, setData] = useState<FormDataT>(InitData);
   const [loadingRecover, setLoadingRecover] = useState<boolean>(false);
   const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
   const [validMail, setValidMail] = useState<boolean>(false);
@@ -51,7 +50,6 @@ const ForgottenPassword = () => {
 
     const response = await RecoverPasswordService({ email });
     if (response?.success) {
-      setData(InitData);
       navigation.navigate('Recover');
     }
 
@@ -114,4 +112,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ForgottenPassword;
+export default ForgottenPasswordScreen;

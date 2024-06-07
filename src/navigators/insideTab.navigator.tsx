@@ -1,13 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import ConfigStackNavigator from './ConfigStackNavigator';
-import { RootStackParamList } from './navigationTypes';
-import HomeStackNavigator from './HomeStackNavigator';
+import ConfigStackNavigator from './configStack.navigator';
+import { NavigationRoutes } from './types/navigationRoutes.type';
+import HomeStackNavigator from './homeStack.navigator';
 
-const Tab = createBottomTabNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<NavigationRoutes>();
 
-const CustomTabNavigator = () => (
+const InsideTabNavigator = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
@@ -30,4 +30,4 @@ const CustomTabNavigator = () => (
   </Tab.Navigator>
 );
 
-export default CustomTabNavigator;
+export default InsideTabNavigator;

@@ -3,10 +3,10 @@ import { View, StyleSheet } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
-const Settings = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const SettingsScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   const handleUpdateProfile = () => {
     navigation.navigate('UpdateProfile');
@@ -45,4 +45,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings;
+export default SettingsScreen;

@@ -17,19 +17,7 @@ const registerService = async (
     };
   } catch (e: unknown) {
     let error = 'Ha ocurrido un error';
-    console.log({
-      e: (e as Record<string, Record<string, Record<string, unknown>>>)
-        ?.response?.data,
-    });
-    switch (
-      (e as Record<string, Record<string, Record<string, unknown>>>)?.response
-        ?.data?.message
-    ) {
-      case 'Entrada duplicada':
-        error = 'El email ya esta en uso';
-        break;
-    }
-
+    console.log(e);
     return { success: false, error };
   }
 };

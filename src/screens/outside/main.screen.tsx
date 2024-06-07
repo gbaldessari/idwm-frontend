@@ -4,10 +4,10 @@ import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Center, Text } from 'native-base';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
-const Main = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const MainScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
   const [loading, setLoading] = useState({ login: false, register: false });
   const [isPressed, setIsPressed] = useState({ login: false, register: false });
 
@@ -88,4 +88,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Main;
+export default MainScreen;

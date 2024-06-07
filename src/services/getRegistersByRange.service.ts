@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-export type WeekResumeServiceResponseT = {
+export type GetRegistersByRangeServiceResponseT = {
   success: boolean;
   data?: any;
   error?: string;
 };
 
-const weekResumeService = async (payload: { token: string; startDate: string; endDate: string }): Promise<WeekResumeServiceResponseT> => {
+const getRegistersByRangeService = async (payload: { token: string; startDate: string; endDate: string }): Promise<GetRegistersByRangeServiceResponseT> => {
   try {
     const endpoint = `${process.env.EXPO_PUBLIC_MS_REGISTER_URL}/registers/get-registers-by-rangeData`;
     const response = await axios.post(endpoint, payload);
@@ -20,4 +20,4 @@ const weekResumeService = async (payload: { token: string; startDate: string; en
   }
 };
 
-export default weekResumeService;
+export default getRegistersByRangeService;

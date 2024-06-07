@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 type TokenState = {
-  storedToken?: string;
+  storedToken: string;
   setToken: (value: string) => void;
 };
 

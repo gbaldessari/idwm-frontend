@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Center, Text, AlertDialog } from 'native-base';
+import { Center, Text, AlertDialog } from 'native-base';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import loginService from '../../services/login.service';
-import mailUseStore from '../../stores/mailUseStore';
-import tokenUseStore from '../../stores/tokenUseStore';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import mailUseStore from '../../useStores/mail.useStore';
+import tokenUseStore from '../../useStores/token.useStore';
+import isAdminUseStore from '../../useStores/isAdmin.useStore'
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
 interface FormData {
   email: string;
@@ -32,17 +33,17 @@ const loginSchema = Joi.object({
   }),
 });
 
-const Login = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const LoginScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
   const { setMail: setMailStore } = mailUseStore();
   const { setToken: setTokenStore } = tokenUseStore();
+  const { setIsAdmin: setIsAdminStore } = isAdminUseStore();
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: ''
   });
   const [errors, setErrors] = useState<Errors>({});
-  const [loadingLogin, setLoadingLogin] = useState(false);
-  const [loadingForgotten, setLoadingForgotten] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState(false);
   const cancelRef = React.useRef(null);
 
@@ -74,14 +75,16 @@ const Login = () => {
       return;
     }
 
-    setLoadingLogin(true);
+    setLoading(true);
     const response = await loginService(formData);
-    setLoadingLogin(false);
+    setLoading(false);
 
     if (response?.success) {
-      const access_token = response?.data?.token;
+      const token = response.data?.token;
+      const isAdmin = response.data?.isAdmin;
       setMailStore(formData.email);
-      setTokenStore(access_token || "");
+      setIsAdminStore(isAdmin || 3);
+      setTokenStore(token || "");
       setFormData({ email: '', password: '' });
       navigation.navigate('Inside');
     } else {
@@ -108,7 +111,7 @@ const Login = () => {
         <Button
           title="Ingresar"
           onPress={handleSubmit}
-          loading={loadingLogin}
+          loading={loading}
           buttonStyle={styles.button}
         />
         <Button
@@ -116,6 +119,7 @@ const Login = () => {
           onPress={() => navigation.navigate('Forgotten')}
           type="clear"
           titleStyle={styles.forgottenButtonTitle}
+          loading={loading}
         />
       </Center>
       <CustomAlertDialog
@@ -178,4 +182,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default LoginScreen;

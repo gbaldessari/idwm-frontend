@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Box, Text, VStack } from 'native-base';
 import { Button } from 'react-native-elements';
-import tokenUseStore from '../../stores/tokenUseStore';
-import weekResumeService from '../../services/weekResume.service';
+import tokenUseStore from '../../useStores/token.useStore';
+import getRegistersByRangeService from '../../services/getRegistersByRange.service';
 import { getCurrentWeekDates, getPreviousWeekDates, getNextWeekDates } from '../../utils/date.utils';
 
-const WeekResume = () => {
+const WeekResumeScreen = () => {
   const { storedToken } = tokenUseStore();
   const token = storedToken || '';
   const [loading, setLoading] = useState<boolean>(false);
@@ -19,7 +19,7 @@ const WeekResume = () => {
 
   const fetchRegisters = async () => {
     setLoading(true);
-    const response = await weekResumeService({
+    const response = await getRegistersByRangeService({
       token,
       startDate: currentWeek.startDate,
       endDate: currentWeek.endDate,
@@ -50,12 +50,14 @@ const WeekResume = () => {
           onPress={handlePreviousWeek}
           containerStyle={styles.buttonContainer}
           buttonStyle={styles.button}
+          loading={loading}
         />
         <Button
           title="Semana Siguiente"
           onPress={handleNextWeek}
           containerStyle={styles.buttonContainer}
           buttonStyle={styles.button}
+          loading={loading}
         />
         {registers.length > 0 ? (
           <ScrollView style={styles.scrollView}>
@@ -126,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WeekResume;
+export default WeekResumeScreen;

@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Center, Text, AlertDialog } from 'native-base';
+import { Center, Text, AlertDialog } from 'native-base';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import registerService from '../../services/register.services';
-import { RootStackParamList } from '../../navigators/navigationTypes';
+import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
 
 interface FormData {
   name: string;
@@ -21,8 +21,8 @@ interface Errors {
   [key: string]: string | undefined;
 }
 
-const Register = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const RegisterScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
   const [formData, setFormData] = useState<FormData>({
     name: '',
     lastName: '',
@@ -65,7 +65,6 @@ const Register = () => {
 
     const response = await registerService(convertFormDataToRecord(formData));
     setLoading(false);
-    setAlert(true);
 
     if (response?.success) {
       navigation.navigate('Main');
@@ -123,12 +122,6 @@ const Register = () => {
           buttonStyle={styles.button}
         />
       </Center>
-      <CustomAlertDialog
-        alert={alert}
-        message="Registro exitoso"
-        onClose={() => setAlert(false)}
-        cancelRef={cancelRef}
-      />
     </View>
   );
 };
@@ -225,4 +218,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Register;
+export default RegisterScreen;

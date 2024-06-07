@@ -4,12 +4,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeBaseProvider } from 'native-base';
 import { ThemeProvider } from 'react-native-elements';
-import CustomStackNavigator from './src/navigators/CustomStackNavigator';
-import CustomTabNavigator from './src/navigators/CustomTabNavigator';
-import { RootStackParamList } from './src/navigators/navigationTypes';
+import OutsideStackNavigator from './src/navigators/outsideStack.navigator';
+import InsideTabNavigator from './src/navigators/insideTab.navigator';
+import { NavigationRoutes } from './src/navigators/types/navigationRoutes.type';
 
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<NavigationRoutes>();
 
 const App = () => {
   return (
@@ -18,8 +17,8 @@ const App = () => {
         <NativeBaseProvider>
           <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Outside" component={CustomStackNavigator} />
-              <Stack.Screen name="Inside" component={CustomTabNavigator} />
+              <Stack.Screen name="Outside" component={OutsideStackNavigator} />
+              <Stack.Screen name="Inside" component={InsideTabNavigator} />
             </Stack.Navigator>
           </NavigationContainer>
         </NativeBaseProvider>
