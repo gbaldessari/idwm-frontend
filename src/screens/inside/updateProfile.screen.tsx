@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, Center, VStack, AlertDialog, Spinner } from 'native-base';
-import { View, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Box, Center, VStack, Spinner } from 'native-base';
+import { View } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import getUserDataService from "../../services/getUserData.service";
 import tokenUseStore from "../../useStores/token.useStore";
@@ -10,6 +10,9 @@ import Joi from 'joi';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import updateUserDataService from '../../services/updateUserData.service';
 import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { updateProfileSchema } from '../../schemas/updateProfile.schema';
+import { updateProfileStyles } from '../../styles/updateProfile.styles';
+import Toast from 'react-native-toast-message';
 
 type FormDataT = {
     name: string;
@@ -23,32 +26,11 @@ const InitData: FormDataT = {
     birthdate: ''
 };
 
-const updateProfileSchema = Joi.object({
-    name: Joi.string().min(1).max(20).required(),
-    lastName: Joi.string().min(1).max(20).required(),
-    birthdate: Joi.string().pattern(/^\d{2}\/\d{2}\/\d{4}$/).required().custom((value, helpers) => {
-        const [day, month, year] = value.split('/');
-        const date = new Date(Number(year), Number(month) - 1, Number(day));
-        const now = new Date();
-        if (date.getFullYear() !== Number(year) || date.getMonth() !== Number(month) - 1 || date.getDate() !== Number(day)) {
-            return helpers.error('any.invalid');
-        }
-        if (date > now) {
-            return helpers.error('Fecha de nacimiento no puede ser en el futuro');
-        }
-        return value;
-    }, 'Fecha de nacimiento')
-});
-
 const UpdateProfileScreen = () => {
     const { storedToken } = tokenUseStore();
     const token = storedToken || '';
     const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
-
     const [formData, setFormData] = useState<FormDataT>(InitData);
-    const [alert, setAlert] = useState<boolean>(false);
-    const [message, setMessage] = useState<string>('');
-    const cancelRef = useRef(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [isDisabledText, setIsDisabledText] = useState<boolean>(false);
     const [fetching, setFetching] = useState<boolean>(true);
@@ -71,10 +53,16 @@ const UpdateProfileScreen = () => {
                             birthdate: response.data.birthdate,
                         });
                     } else {
-                        Alert.alert('Error', response.error || 'Unable to fetch user data');
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error al obtener los datos del Usuario'
+                        });
                     }
                 } catch (error) {
-                    Alert.alert('Error', 'Something went wrong while fetching user data');
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error al obtener los datos del Usuario'
+                    });
                 } finally {
                     setFetching(false);
                 }
@@ -126,18 +114,25 @@ const UpdateProfileScreen = () => {
 
     const handleSubmit = async () => {
         if (!isValidForm()) return;
-
         const { name, lastName, birthdate } = formData;
-        try {
-            const response = await updateUserDataService({ token, name, lastName, birthdate });
-            if (response?.success) {
-                navigation.navigate('Settings');
-            } else {
-                Alert.alert('Error', response?.error || 'Failed to update user data');
-            }
-        } catch (error) {
-            console.error('Error updating user data:', error);
-            Alert.alert('Error', 'Something went wrong while updating user data');
+
+        setLoading(true);
+        setIsDisabledText(true);
+        const response = await updateUserDataService({ token, name, lastName, birthdate });
+        setIsDisabledText(false);
+        setLoading(false);
+
+        if (response?.success) {
+            Toast.show({
+                type: 'success',
+                text1: 'Perfil actualizado con exito'
+            });
+            navigation.navigate('Settings');
+        } else {
+            Toast.show({
+                type: 'error',
+                text1: 'Error al actualizar el perfil'
+            });
         }
     };
 
@@ -150,9 +145,8 @@ const UpdateProfileScreen = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <Box style={styles.containerBox}>
-                <CustomAlertDialog alert={alert} message={message} onClose={() => setAlert(false)} cancelRef={cancelRef} />
+        <View style={updateProfileStyles.container}>
+            <Box style={updateProfileStyles.containerBox}>
                 <VStack space={4} alignItems='center'>
                     <FormInput
                         label="Name"
@@ -206,29 +200,5 @@ const NavigationButton = ({ title, onPress, loading }: { title: string; onPress:
         />
     </Center>
 );
-
-const CustomAlertDialog = ({ alert, message, onClose, cancelRef }: { alert: boolean; message: string; onClose: () => void; cancelRef: React.RefObject<any>; }) => (
-    <AlertDialog leastDestructiveRef={cancelRef} isOpen={alert} onClose={onClose}>
-        <AlertDialog.Content>
-            <AlertDialog.CloseButton />
-            <AlertDialog.Body>{message}</AlertDialog.Body>
-        </AlertDialog.Content>
-    </AlertDialog>
-);
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        backgroundColor: 'white',
-        padding: 10,
-    },
-    containerBox: {
-        flex: 1,
-        alignContent: 'center',
-        justifyContent: 'center',
-        margin: 30,
-    },
-});
 
 export default UpdateProfileScreen;

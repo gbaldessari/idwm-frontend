@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
-import { ListItem } from 'react-native-elements';
 import tokenUseStore from '../../useStores/token.useStore';
 import isAdminUseStore from '../../useStores/isAdmin.useStore';
 import getWorkersService from '../../services/getWorkers.service';
 import getRegistersByRangeService from '../../services/getRegistersByRange.service';
+import Toast from 'react-native-toast-message';
+import { adminMenuStyles } from '../../styles/adminMenu.styles';
 
 const AdminMenuScreen = () => {
   const { storedToken } = tokenUseStore();
@@ -17,73 +18,72 @@ const AdminMenuScreen = () => {
   useEffect(() => {
     const fetchWorkers = async () => {
       if (storedIsAdmin !== 3) {
-        console.log("Fetching workers...");
         const response = await getWorkersService(storedToken);
         if (response.success) {
-          console.log("Workers fetched:", response.data);
-          setWorkers(response.data);
+          setWorkers(response.data.data);
         } else {
-          console.log("Failed to fetch workers:", response.error);
+          Toast.show({
+            type: 'error',
+            text1: 'Error al obtener trabajadores'
+          });
         }
       } else {
-        console.log("User is not admin, skipping fetch workers.");
+        Toast.show({
+          type: 'error',
+          text1: 'Usuario no autorizado'
+        });
       }
     };
     fetchWorkers();
   }, [storedToken, storedIsAdmin]);
 
-  const fetchRegisters = async (workerId: number) => {
+  const fetchRegisters = async (workerToken: string) => {
     const endDate = new Date(); // use the current date
     const startDate = new Date(endDate); // clone the current date
     startDate.setDate(endDate.getDate() - 7); // one week back
     const payload = {
-      token: storedToken || "",
+      token: workerToken || "",
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
-    console.log("Fetching registers for worker:", workerId, "with payload:", payload);
     const response = await getRegistersByRangeService(payload);
     if (response.success) {
-      console.log("Registers fetched:", response.data);
       setRegisters(response.data);
     } else {
-      console.log("Failed to fetch registers:", response.error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error al obtener registros'
+      });
     }
   };
 
   return (
     <StyledBox>
-      <Text style={styles.title}>Administrar Trabajadores</Text>
-      <FlatList
-        data={workers}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <ListItem bottomDivider onPress={() => {
-            setSelectedWorker(item);
-            fetchRegisters(item.id);
+      <Text style={adminMenuStyles.title}>Administrar Trabajadores</Text>
+      <ScrollView>
+        {workers.map((worker: any) => (
+          <TouchableOpacity key={worker.id} onPress={() => {
+            setSelectedWorker(worker);
+            fetchRegisters(worker.token); // Use worker's token
           }}>
-            <ListItem.Content>
-              <ListItem.Title>{item.name}</ListItem.Title>
-              <ListItem.Subtitle>{item.email}</ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Chevron />
-          </ListItem>
-        )}
-      />
+            <View style={adminMenuStyles.workerContainer}>
+              <Text style={adminMenuStyles.workerText}>{worker.name} {worker.lastName}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
       {selectedWorker && (
         <>
-          <Text style={styles.subtitle}>Entradas y Salidas de {selectedWorker.name}</Text>
+          <Text style={adminMenuStyles.subtitle}>Entradas y Salidas de {selectedWorker.name} {selectedWorker.lastName}</Text>
           <FlatList
             data={registers}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <ListItem bottomDivider>
-                <ListItem.Content>
-                  <ListItem.Title>{item.date}</ListItem.Title>
-                  <ListItem.Subtitle>Entrada: {item.timeEntry}</ListItem.Subtitle>
-                  <ListItem.Subtitle>Salida: {item.timeExit}</ListItem.Subtitle>
-                </ListItem.Content>
-              </ListItem>
+              <View style={adminMenuStyles.registerContainer}>
+                <Text style={adminMenuStyles.registerText}>Fecha: {item.date}</Text>
+                <Text style={adminMenuStyles.registerText}>Entrada: {item.timeEntry}</Text>
+                <Text style={adminMenuStyles.registerText}>Salida: {item.timeExit}</Text>
+              </View>
             )}
           />
         </>
@@ -93,30 +93,9 @@ const AdminMenuScreen = () => {
 };
 
 const StyledBox = ({ children }: { children: React.ReactNode }) => (
-  <View style={styles.container}>
+  <View style={adminMenuStyles.container}>
     <Box>{children}</Box>
   </View>
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    padding: 10,
-  },
-  title: {
-    fontSize: 35,
-    textAlign: 'center',
-    lineHeight: 35,
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 25,
-    textAlign: 'center',
-    lineHeight: 25,
-    marginVertical: 20,
-  },
-});
 
 export default AdminMenuScreen;

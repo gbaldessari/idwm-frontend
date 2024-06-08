@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { settingsStyles } from '../../styles/settings.styles';
 
 const SettingsScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
@@ -25,24 +26,11 @@ const SettingsScreen = () => {
 };
 
 const NavigationButton = ({ title, onPress }: { title: string; onPress: () => void }) => (
-  <Button title={title} onPress={onPress} buttonStyle={styles.button} />
+  <Button title={title} onPress={onPress} buttonStyle={settingsStyles.button} />
 );
 
 const StyledContainer = ({ children }: { children: React.ReactNode }) => (
-  <View style={styles.container}>{children}</View>
+  <View style={settingsStyles.container}>{children}</View>
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  button: {
-    backgroundColor: '#6200ee',
-    marginVertical: 10,
-  },
-});
 
 export default SettingsScreen;

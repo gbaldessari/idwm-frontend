@@ -7,6 +7,7 @@ import { ThemeProvider } from 'react-native-elements';
 import OutsideStackNavigator from './src/navigators/outsideStack.navigator';
 import InsideTabNavigator from './src/navigators/insideTab.navigator';
 import { NavigationRoutes } from './src/navigators/types/navigationRoutes.type';
+import Toast from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();
 
@@ -21,6 +22,7 @@ const App = () => {
               <Stack.Screen name="Inside" component={InsideTabNavigator} />
             </Stack.Navigator>
           </NavigationContainer>
+          <Toast/>
         </NativeBaseProvider>
       </ThemeProvider>
     </SafeAreaProvider>
