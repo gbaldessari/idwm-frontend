@@ -4,7 +4,7 @@ import { Box, Text } from 'native-base';
 import tokenUseStore from '../../useStores/token.useStore';
 import isAdminUseStore from '../../useStores/isAdmin.useStore';
 import getWorkersService from '../../services/getWorkers.service';
-import getRegistersByRangeService from '../../services/getRegistersByRange.service';
+import getRegistersOfWorkersService, { GetRegistersOfWorkersServiceResponseT } from '../../services/getRegistersOfWorkers.service';
 import Toast from 'react-native-toast-message';
 import { adminMenuStyles } from '../../styles/adminMenu.styles';
 
@@ -17,38 +17,47 @@ const AdminMenuScreen = () => {
 
   useEffect(() => {
     const fetchWorkers = async () => {
-      if (storedIsAdmin !== 3) {
-        const response = await getWorkersService(storedToken);
-        if (response.success) {
-          setWorkers(response.data.data);
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'Error al obtener trabajadores'
-          });
-        }
-      } else {
+      if (storedIsAdmin === 3) {
         Toast.show({
           type: 'error',
           text1: 'Usuario no autorizado'
+        });
+        return;
+      }
+
+      const response = await getWorkersService(storedToken);
+      if (response.success) {
+        setWorkers(response.data.data);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error al obtener trabajadores'
         });
       }
     };
     fetchWorkers();
   }, [storedToken, storedIsAdmin]);
 
-  const fetchRegisters = async (workerToken: string) => {
-    const endDate = new Date(); // use the current date
-    const startDate = new Date(endDate); // clone the current date
-    startDate.setDate(endDate.getDate() - 7); // one week back
+  const fetchRegisters = async (workerId: number) => {
+    const endDate = new Date();
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 7);
     const payload = {
-      token: workerToken || "",
+      id: workerId.toString(),
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
-    const response = await getRegistersByRangeService(payload);
+
+    const response: GetRegistersOfWorkersServiceResponseT = await getRegistersOfWorkersService(payload);
     if (response.success) {
-      setRegisters(response.data);
+      if (response.data.length === 0) {
+        Toast.show({
+          type: 'info',
+          text1: 'No se encontraron registros para este trabajador'
+        });
+      } else {
+        setRegisters(response.data);
+      }
     } else {
       Toast.show({
         type: 'error',
@@ -64,7 +73,7 @@ const AdminMenuScreen = () => {
         {workers.map((worker: any) => (
           <TouchableOpacity key={worker.id} onPress={() => {
             setSelectedWorker(worker);
-            fetchRegisters(worker.token); // Use worker's token
+            fetchRegisters(worker.id);
           }}>
             <View style={adminMenuStyles.workerContainer}>
               <Text style={adminMenuStyles.workerText}>{worker.name} {worker.lastName}</Text>

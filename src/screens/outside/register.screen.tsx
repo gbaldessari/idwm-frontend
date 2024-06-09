@@ -60,8 +60,8 @@ const RegisterScreen = () => {
     const errors = validate();
     setErrors(errors || {});
     if (errors) return;
-    setLoading(true);
 
+    setLoading(true);
     const response = await registerService(convertFormDataToRecord(formData));
     setLoading(false);
 

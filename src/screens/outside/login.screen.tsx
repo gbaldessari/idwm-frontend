@@ -65,6 +65,8 @@ const LoginScreen = () => {
     setIsDisabledText(true);
     setLoading(true);
     const response = await loginService(formData);
+    setIsDisabledText(false);
+    setLoading(false);
 
     if (response?.success) {
       const token = response.data?.token;
@@ -77,7 +79,6 @@ const LoginScreen = () => {
         type: 'success',
         text1: 'Ingreso exitoso',
       });
-      setIsDisabledText(false);
       navigation.navigate('Inside');
     } else{
       Toast.show({
@@ -85,8 +86,6 @@ const LoginScreen = () => {
         text1: 'Error al ingresar',
       });
     }
-    setLoading(false);
-    setIsDisabledText(false);
   };
 
   return (
