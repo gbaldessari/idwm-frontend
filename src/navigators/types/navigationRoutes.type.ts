@@ -3,11 +3,13 @@ export type NavigationRoutes = {
     Inicio: undefined;
       Home: undefined;
       WeekResume: undefined;
-      AdminMenu: undefined;
     Configuraciones: undefined;
       Settings: undefined;
       UpdateProfile: undefined;
       UpdatePassword: undefined;
+    Administrador: undefined;
+      AdminMenu: undefined;
+      WorkersRegisters: undefined;
   Outside: undefined;
     Main: undefined;
     Register: undefined;

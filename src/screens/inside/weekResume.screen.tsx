@@ -46,37 +46,73 @@ const WeekResumeScreen = () => {
     setCurrentWeek(getNextWeekDates(currentWeek.startDate));
   };
 
+  const renderTable = () => {
+    const startDate = new Date(currentWeek.startDate);
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      dates.push(date);
+    }
+
+    return (
+      <View style={weekResumeStyles.table}>
+        <View style={weekResumeStyles.tableHeader}>
+          <Text style={weekResumeStyles.tableHeaderText}>Día</Text>
+          <Text style={weekResumeStyles.tableHeaderText}>Registro</Text>
+        </View>
+        {dates.map((date, index) => {
+          const register = registers.find((r: any) => new Date(r.date).toDateString() === date.toDateString());
+          return (
+            <View key={index} style={weekResumeStyles.tableRow}>
+              <View style={weekResumeStyles.tableCell}>
+                <Text style={weekResumeStyles.tableText}>{date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' })}</Text>
+              </View>
+              <View style={weekResumeStyles.tableCell}>
+                {register ? (
+                  <>
+                    <Text style={weekResumeStyles.tableText}>Entrada: {register.timeEntry}</Text>
+                    <Text style={weekResumeStyles.tableText}>Salida: {register.timeExit}</Text>
+                  </>
+                ) : (
+                  <Text style={weekResumeStyles.tableText}>Sin registros</Text>
+                )}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    );
+  };
+
+  const isNextWeekDisabled = () => {
+    const today = new Date();
+    const currentStartDate = new Date(currentWeek.startDate);
+    return currentStartDate > today;
+  };
+
   return (
     <StyledBox>
-      <Text style={weekResumeStyles.title}>Resumen Semanal</Text>
       <VStack space={4} alignItems="center">
-        <Button
-          title="Semana Anterior"
-          onPress={handlePreviousWeek}
-          containerStyle={weekResumeStyles.buttonContainer}
-          buttonStyle={weekResumeStyles.button}
-          loading={loading}
-        />
-        <Button
-          title="Semana Siguiente"
-          onPress={handleNextWeek}
-          containerStyle={weekResumeStyles.buttonContainer}
-          buttonStyle={weekResumeStyles.button}
-          loading={loading}
-        />
-        {registers.length > 0 ? (
-          <ScrollView style={weekResumeStyles.scrollView}>
-            {registers.map((register, index) => (
-              <View key={index} style={weekResumeStyles.registerItem}>
-                <Text style={weekResumeStyles.registerDate}>{register.date}</Text>
-                <Text style={weekResumeStyles.registerTime}>Entrada: {register.timeEntry}</Text>
-                <Text style={weekResumeStyles.registerTime}>Salida: {register.timeExit || '---'}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        ) : (
-          <Text>No hay registros para esta semana.</Text>
-        )}
+        <Text style={weekResumeStyles.dateRangeText}>Semana del {currentWeek.startDate} al {currentWeek.endDate}</Text>
+        <View style={weekResumeStyles.buttonContainer}>
+          <Button
+            title="Semana Anterior"
+            onPress={handlePreviousWeek}
+            containerStyle={weekResumeStyles.button}
+            buttonStyle={weekResumeStyles.button}
+            loading={loading}
+          />
+          <Button
+            title="Semana Siguiente"
+            onPress={handleNextWeek}
+            containerStyle={weekResumeStyles.button}
+            buttonStyle={weekResumeStyles.button}
+            loading={loading}
+            disabled={isNextWeekDisabled()}
+          />
+        </View>
+        {renderTable()}
       </VStack>
     </StyledBox>
   );

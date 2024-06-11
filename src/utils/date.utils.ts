@@ -1,19 +1,25 @@
-import moment from 'moment';
-
 export const getCurrentWeekDates = () => {
-  const startDate = moment().startOf('week').format('YYYY-MM-DD');
-  const endDate = moment().endOf('week').format('YYYY-MM-DD');
-  return { startDate, endDate };
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // Asegurar que la semana comience el lunes
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  return { startDate: startDate.toISOString().split('T')[0], endDate: endDate.toISOString().split('T')[0] };
 };
 
 export const getPreviousWeekDates = (currentStartDate: string) => {
-  const startDate = moment(currentStartDate).subtract(1, 'week').startOf('week').format('YYYY-MM-DD');
-  const endDate = moment(currentStartDate).subtract(1, 'week').endOf('week').format('YYYY-MM-DD');
-  return { startDate, endDate };
+  const startDate = new Date(currentStartDate);
+  startDate.setDate(startDate.getDate() - 7);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  return { startDate: startDate.toISOString().split('T')[0], endDate: endDate.toISOString().split('T')[0] };
 };
 
 export const getNextWeekDates = (currentStartDate: string) => {
-  const startDate = moment(currentStartDate).add(1, 'week').startOf('week').format('YYYY-MM-DD');
-  const endDate = moment(currentStartDate).add(1, 'week').endOf('week').format('YYYY-MM-DD');
-  return { startDate, endDate };
+  const startDate = new Date(currentStartDate);
+  startDate.setDate(startDate.getDate() + 7);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  return { startDate: startDate.toISOString().split('T')[0], endDate: endDate.toISOString().split('T')[0] };
 };

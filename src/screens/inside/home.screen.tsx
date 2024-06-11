@@ -7,13 +7,11 @@ import scheduleService from '../../services/schedule.service';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
-import isAdminUseStore from '../../useStores/isAdmin.useStore';
 import { homeStyles } from '../../styles/home.styles';
 import Toast from 'react-native-toast-message';
 
 const HomeScreen = () => {
   const { storedToken } = tokenUseStore();
-  const { storedIsAdmin } = isAdminUseStore();
   const [loading, setLoading] = useState<boolean>(false);
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
@@ -63,19 +61,12 @@ const HomeScreen = () => {
     navigation.navigate('WeekResume');
   };
 
-  const handlePressAdmin = async () => {
-    navigation.navigate('AdminMenu');
-  };
-
   return (
     <StyledBox>
       <Text style={homeStyles.title}>Bienvenido</Text>
       <ScheduleButton title="Marcar Entrada" onPress={handlePressEntry} loading={loading} />
       <ScheduleButton title="Marcar Salida" onPress={handlePressExit} loading={loading} />
       <ScheduleButton title="Resumen de la semana" onPress={handlePressWeekResume} loading={loading} />
-      {storedIsAdmin !== 3&& (
-        <ScheduleButton title="Menu Administrador" onPress={handlePressAdmin} loading={loading} />
-      )}
     </StyledBox>
   );
 };
