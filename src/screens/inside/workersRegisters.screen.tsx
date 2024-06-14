@@ -1,4 +1,3 @@
-// WorkersRegistersScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Button } from 'react-native';
 import { Box, Text } from 'native-base';
@@ -12,12 +11,12 @@ import { useNavigation } from '@react-navigation/native';
 import selectedRegisterUseStore from '../../useStores/selectedRegister.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
+import { adminCreateRegisterService } from '../../services/schedule.service';
 
 interface Worker {
   id: number;
   name: string;
   lastName: string;
-  // Add any other relevant fields
 }
 
 interface Register {
@@ -29,6 +28,16 @@ interface Register {
   updatedAt: string;
   userId: number;
 }
+
+const emptyRegister: Register = {
+  id: 0,
+  date: '',
+  timeEntry: '',
+  timeExit: '',
+  createdAt: '',
+  updatedAt: '',
+  userId: 0,
+};
 
 interface DateRange {
   startDate: string;
@@ -90,21 +99,19 @@ const WorkersRegistersScreen: React.FC = () => {
 
     const response: GetRegistersOfWorkersServiceResponseT = await getRegistersOfWorkersService(payload);
     if (response.success) {
-      console.log(response);
       if (response.data?.length === 0) {
         Toast.show({
           type: 'info',
           text1: 'No se encontraron registros para este trabajador'
         });
       }
-
+      setRegisters(response.data ?? []);
     } else {
       Toast.show({
         type: 'error',
         text1: 'Error al obtener registros'
       });
     }
-    setRegisters(response.data ?? []);
   };
 
   useEffect(() => {
@@ -113,9 +120,37 @@ const WorkersRegistersScreen: React.FC = () => {
     }
   }, [currentWeekOffset, selectedWorker]);
 
-  const handleOnEdit = (register: Register) => {
-    setSelectedRegister(register);
-    navigation.navigate('EditRegister');
+  const handleOnEdit = (register: Register, selectedDate: Date) => {
+    if (register.id === 0) {
+      // No existing register, create one
+      const payload = {
+        id: selectedWorker?.id ?? 0,
+        isEntry: true,
+        date: selectedDate.toISOString().split('T')[0], // Use the selected date
+        time: new Date().toLocaleTimeString('es-ES', { hour12: false }), // Use the current time
+      };
+      adminCreateRegisterService(payload).then(response => {
+        if (response.success && response.data) {
+          const newRegister = {
+            ...register,
+            id: response.data.userId,
+            userId: selectedWorker?.id ?? 0,
+            date: payload.date,
+            timeEntry: payload.time,
+          };
+          setSelectedRegister(newRegister);
+          navigation.navigate('EditRegister');
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Error al crear el registro'
+          });
+        }
+      });
+    } else {
+      setSelectedRegister(register);
+      navigation.navigate('EditRegister');
+    }
   };
 
   const renderTable = () => {
@@ -134,14 +169,14 @@ const WorkersRegistersScreen: React.FC = () => {
           <Text style={workersRegistersStyles.tableHeaderText}>Registro</Text>
         </View>
         {dates.map((date, index) => {
-          const register = registers.find((r: Register) => new Date(r.date).toDateString() === date.toDateString());
+          const register = registers.find((r: Register) => new Date(r.date).toDateString() === date.toDateString()) || emptyRegister;
           return (
-            <TouchableOpacity key={index} style={workersRegistersStyles.tableRow} onPress={() => register && handleOnEdit(register)}>
+            <TouchableOpacity key={index} style={workersRegistersStyles.tableRow} onPress={() => handleOnEdit(register, date)}>
               <View style={workersRegistersStyles.tableCell}>
                 <Text style={workersRegistersStyles.tableText}>{date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' })}</Text>
               </View>
               <View style={workersRegistersStyles.tableCell}>
-                {register ? (
+                {register.timeEntry || register.timeExit ? (
                   <>
                     <Text style={workersRegistersStyles.tableText}>Entrada: {register.timeEntry}</Text>
                     <Text style={workersRegistersStyles.tableText}>Salida: {register.timeExit}</Text>

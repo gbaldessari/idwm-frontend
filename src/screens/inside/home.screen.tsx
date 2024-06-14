@@ -4,7 +4,7 @@ import { Box, Text } from 'native-base';
 import { Button } from 'react-native-elements';
 import * as Location from 'expo-location';
 import tokenUseStore from '../../useStores/token.useStore';
-import scheduleService from '../../services/schedule.service';
+import {createRegisterService} from '../../services/schedule.service';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
@@ -45,7 +45,7 @@ const HomeScreen = () => {
     setLoading(true);
     try {
       const { latitude, longitude } = await getLocation();
-      const response = await scheduleService({ token, isEntry, latitude, longitude });
+      const response = await createRegisterService({ token, isEntry, latitude, longitude });
       if (response.success) {
         Toast.show({
           type: 'success',
@@ -73,7 +73,7 @@ const HomeScreen = () => {
     setLoading(true);
     try {
       const { latitude, longitude } = await getLocation();
-      const response = await scheduleService({ token, isEntry, latitude, longitude });
+      const response = await createRegisterService({ token, isEntry, latitude, longitude });
       if (response.success) {
         Toast.show({
           type: 'success',

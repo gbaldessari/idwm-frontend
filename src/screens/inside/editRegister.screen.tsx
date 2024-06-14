@@ -7,6 +7,7 @@ import { editRegisterStyles } from '../../styles/editRegister.styles';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
+import { updateStartRegisterService, updateEndRegisterService } from '../../services/schedule.service';
 
 const EditRegisterScreen = () => {
   const { selectedRegister, clearSelectedRegister } = selectedRegisterUseStore();
@@ -15,30 +16,26 @@ const EditRegisterScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   const handleSave = async () => {
-    const payload = {
-      timeEntry,
-      timeExit,
-      // Add other necessary fields here
-    };
-
-    // Call your service to save the updated register
     let response;
-    if (selectedRegister) {
-      // Update existing register
-      response = true;
-    } else {
-      // Create new register
-      response = false;
-    }
-
-    if (response) {
-      Toast.show({
-        type: 'success',
-        text1: 'Registro actualizado'
-      });
-      clearSelectedRegister();
-      navigation.navigate("WorkersRegisters");
-    } else {
+    try {
+      if (selectedRegister) {
+        if (timeEntry !== selectedRegister.timeEntry) {
+          response = await updateStartRegisterService({ id: selectedRegister.id, startDate: timeEntry });
+          if (!response.success) throw new Error('Error updating start register');
+        }
+        if (timeExit !== selectedRegister.timeExit) {
+          response = await updateEndRegisterService({ id: selectedRegister.id, endDate: timeExit });
+          if (!response.success) throw new Error('Error updating end register');
+        }
+        Toast.show({
+          type: 'success',
+          text1: 'Registro actualizado'
+        });
+        clearSelectedRegister();
+        navigation.navigate("WorkersRegisters");
+      }
+    } catch (error) {
+      console.log(error);
       Toast.show({
         type: 'error',
         text1: 'Error al actualizar el registro'
@@ -60,7 +57,7 @@ const EditRegisterScreen = () => {
         value={timeExit}
         onChangeText={setTimeExit}
       />
-      <Button title={selectedRegister ? 'Guardar' : 'Crear'} onPress={handleSave} />
+      <Button title='Guardar' onPress={handleSave} />
     </View>
   );
 };
