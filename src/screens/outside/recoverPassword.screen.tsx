@@ -5,7 +5,7 @@ import { Box, Text, VStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ChangeForgottenPasswordService from '../../services/changeForgottenPassword.service';
-import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { recoverPasswordSchema } from '../../schemas/recoverPassword.schema';
 import { recoverPasswordStyles } from '../../styles/recoverPassword.styles';
 import Toast from 'react-native-toast-message';

@@ -10,6 +10,7 @@ export type NavigationRoutes = {
     Administrador: undefined;
       AdminMenu: undefined;
       WorkersRegisters: undefined;
+      EditRegister: undefined;
   Outside: undefined;
     Main: undefined;
     Register: undefined;

@@ -4,7 +4,7 @@ import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Center, Text } from 'native-base';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { mainStyles } from '../../styles/main.styles';
 
 const MainScreen = () => {
@@ -20,7 +20,7 @@ const MainScreen = () => {
 
   return (
     <StyledContainer>
-      <StyledBox text="MarcApp" />
+      <StyledBox text="GeoMarcaje Pro" />
       <CustomButton title='Ingresar' onPress={handleLogin} />
       <CustomButton title='Registrarse' onPress={handleRegister}  />
     </StyledContainer>

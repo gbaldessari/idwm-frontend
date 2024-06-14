@@ -6,7 +6,7 @@ import useStore from '../../useStores/mail.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Center } from 'native-base';
 import RecoverPasswordService from '../../services/recoverPassword.service';
-import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { forgottenPasswordStyles } from '../../styles/forgottenPassword.styles';
 import { forgotenPasswordSchema } from '../../schemas/forgottenPassword.schema';
 import Toast from 'react-native-toast-message';

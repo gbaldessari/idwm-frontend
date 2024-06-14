@@ -8,7 +8,7 @@ import loginService from '../../services/login.service';
 import mailUseStore from '../../useStores/mail.useStore';
 import tokenUseStore from '../../useStores/token.useStore';
 import isAdminUseStore from '../../useStores/isAdmin.useStore'
-import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { loginStyles } from '../../styles/login.styles';
 import { loginSchema } from '../../schemas/login.schema';
 import Toast from 'react-native-toast-message';

@@ -9,7 +9,7 @@ import 'text-encoding-polyfill';
 import Joi from 'joi';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import updateUserDataService from '../../services/updateUserData.service';
-import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { updateProfileSchema } from '../../schemas/updateProfile.schema';
 import { updateProfileStyles } from '../../styles/updateProfile.styles';
 import Toast from 'react-native-toast-message';

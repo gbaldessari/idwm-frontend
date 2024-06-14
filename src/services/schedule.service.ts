@@ -2,11 +2,11 @@ import axios from 'axios';
 
 export type ScheduleServiceResponseT = {
   success: boolean;
-  data?: {userId: number};
+  data?: { userId: number };
   error?: string;
 };
 
-const scheduleService = async ( payload: { token: string, isEntry: boolean}
+const scheduleService = async (payload: { token: string; isEntry: boolean; latitude: number; longitude: number }
 ): Promise<ScheduleServiceResponseT> => {
   try {
     const endpoint: string = `${process.env.EXPO_PUBLIC_MS_REGISTER_URL}/registers/create-register`;

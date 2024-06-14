@@ -1,3 +1,4 @@
+// WorkersRegistersScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Button } from 'react-native';
 import { Box, Text } from 'native-base';
@@ -7,15 +8,43 @@ import getWorkersService from '../../services/getWorkers.service';
 import getRegistersOfWorkersService, { GetRegistersOfWorkersServiceResponseT } from '../../services/getRegistersOfWorkers.service';
 import Toast from 'react-native-toast-message';
 import { workersRegistersStyles } from '../../styles/workersRegisters.styles';
+import { useNavigation } from '@react-navigation/native';
+import selectedRegisterUseStore from '../../useStores/selectedRegister.useStore';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 
-const WorkersRegistersScreen = () => {
+interface Worker {
+  id: number;
+  name: string;
+  lastName: string;
+  // Add any other relevant fields
+}
+
+interface Register {
+  id: number;
+  date: string;
+  timeEntry: string;
+  timeExit: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+}
+
+interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
+const WorkersRegistersScreen: React.FC = () => {
   const { storedToken } = tokenUseStore();
   const { storedIsAdmin } = isAdminUseStore();
-  const [workers, setWorkers] = useState<any[]>([]);
-  const [selectedWorker, setSelectedWorker] = useState<any>(null);
-  const [registers, setRegisters] = useState<any[]>([]);
+  const { setSelectedRegister } = selectedRegisterUseStore();
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
+  const [registers, setRegisters] = useState<Register[]>([]);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
-  const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string }>({ startDate: '', endDate: '' });
+  const [dateRange, setDateRange] = useState<DateRange>({ startDate: '', endDate: '' });
+  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -61,22 +90,21 @@ const WorkersRegistersScreen = () => {
 
     const response: GetRegistersOfWorkersServiceResponseT = await getRegistersOfWorkersService(payload);
     if (response.success) {
-      if (response.data.length === 0) {
+      console.log(response);
+      if (response.data?.length === 0) {
         Toast.show({
           type: 'info',
           text1: 'No se encontraron registros para este trabajador'
         });
-        setRegisters([]);
-      } else {
-        setRegisters(response.data);
       }
+
     } else {
       Toast.show({
         type: 'error',
         text1: 'Error al obtener registros'
       });
-      setRegisters([]);
     }
+    setRegisters(response.data ?? []);
   };
 
   useEffect(() => {
@@ -84,6 +112,11 @@ const WorkersRegistersScreen = () => {
       fetchRegisters(selectedWorker.id);
     }
   }, [currentWeekOffset, selectedWorker]);
+
+  const handleOnEdit = (register: Register) => {
+    setSelectedRegister(register);
+    navigation.navigate('EditRegister');
+  };
 
   const renderTable = () => {
     const startDate = new Date(dateRange.startDate);
@@ -101,9 +134,9 @@ const WorkersRegistersScreen = () => {
           <Text style={workersRegistersStyles.tableHeaderText}>Registro</Text>
         </View>
         {dates.map((date, index) => {
-          const register = registers.find((r: any) => new Date(r.date).toDateString() === date.toDateString());
+          const register = registers.find((r: Register) => new Date(r.date).toDateString() === date.toDateString());
           return (
-            <View key={index} style={workersRegistersStyles.tableRow}>
+            <TouchableOpacity key={index} style={workersRegistersStyles.tableRow} onPress={() => register && handleOnEdit(register)}>
               <View style={workersRegistersStyles.tableCell}>
                 <Text style={workersRegistersStyles.tableText}>{date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' })}</Text>
               </View>
@@ -117,7 +150,7 @@ const WorkersRegistersScreen = () => {
                   <Text style={workersRegistersStyles.tableText}>Sin registros</Text>
                 )}
               </View>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
@@ -127,14 +160,14 @@ const WorkersRegistersScreen = () => {
   const isNextWeekDisabled = () => {
     const today = new Date();
     const currentStartDate = new Date();
-    currentStartDate.setDate(currentStartDate.getDate() + currentWeekOffset * 7);
+    currentStartDate.setDate(currentStartDate.getDate() + currentWeekOffset * 7 - currentStartDate.getDay() + 1);
     return currentStartDate > today;
   };
 
   return (
     <StyledBox>
       <ScrollView>
-        {workers.map((worker: any) => (
+        {workers.map((worker: Worker) => (
           <TouchableOpacity key={worker.id} onPress={() => {
             setSelectedWorker(worker);
             fetchRegisters(worker.id);
@@ -160,7 +193,7 @@ const WorkersRegistersScreen = () => {
   );
 };
 
-const StyledBox = ({ children }: { children: React.ReactNode }) => (
+const StyledBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <View style={workersRegistersStyles.container}>
     <Box>{children}</Box>
   </View>

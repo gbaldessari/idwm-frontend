@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ConfigStackNavigator from './configStack.navigator';
-import { NavigationRoutes } from './types/navigationRoutes.type';
+import { NavigationRoutes } from '../types/navigationRoutes.type';
 import HomeStackNavigator from './homeStack.navigator';
 import AdminStackNavigator from './adminStack.navigator';
 import isAdminUseStore from '../useStores/isAdmin.useStore';

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Box, Text } from 'native-base';
 import { Button } from 'react-native-elements';
+import * as Location from 'expo-location';
 import tokenUseStore from '../../useStores/token.useStore';
 import scheduleService from '../../services/schedule.service';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NavigationRoutes } from '../../navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { homeStyles } from '../../styles/home.styles';
 import Toast from 'react-native-toast-message';
 
@@ -15,25 +16,54 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
+  const getLocation = async (): Promise<{ latitude: number, longitude: number }> => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        throw new Error('Location permission denied');
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High
+      });
+
+      console.log(location);
+
+      return {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handlePressEntry = async () => {
     const token: string = storedToken || "";
     const isEntry: boolean = true;
 
     setLoading(true);
-    const response = await scheduleService({ token, isEntry});
-    setLoading(false);
-
-    if(response.success){
-      Toast.show({
-        type: 'success',
-        text1: 'Entrada marcada con exito'
-      });
-    }else{
+    try {
+      const { latitude, longitude } = await getLocation();
+      const response = await scheduleService({ token, isEntry, latitude, longitude });
+      if (response.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Entrada marcada con éxito'
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error al marcar entrada'
+        });
+      }
+    } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Error al marcar entrada'
+        text1: 'Error al obtener la ubicación'
       });
     }
+    setLoading(false);
   };
 
   const handlePressExit = async () => {
@@ -41,20 +71,27 @@ const HomeScreen = () => {
     const isEntry: boolean = false;
 
     setLoading(true);
-    const response = await scheduleService({ token, isEntry});
-    setLoading(false);
-
-    if(response.success){
-      Toast.show({
-        type: 'success',
-        text1: 'Salida marcada con exito'
-      });
-    }else{
+    try {
+      const { latitude, longitude } = await getLocation();
+      const response = await scheduleService({ token, isEntry, latitude, longitude });
+      if (response.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Salida marcada con éxito'
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error al marcar salida'
+        });
+      }
+    } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Error al marcar salida'
+        text1: 'Error al obtener la ubicación'
       });
     }
+    setLoading(false);
   };
 
   const handlePressWeekResume = async () => {

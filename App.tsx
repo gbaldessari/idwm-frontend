@@ -6,7 +6,7 @@ import { NativeBaseProvider } from 'native-base';
 import { ThemeProvider } from 'react-native-elements';
 import OutsideStackNavigator from './src/navigators/outsideStack.navigator';
 import InsideTabNavigator from './src/navigators/insideTab.navigator';
-import { NavigationRoutes } from './src/navigators/types/navigationRoutes.type';
+import { NavigationRoutes } from './src/types/navigationRoutes.type';
 import Toast from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();

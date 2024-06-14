@@ -5,7 +5,7 @@ import LoginScreen from '../screens/outside/login.screen';
 import ForgottenScreen from '../screens/outside/forgottenPassword.screen';
 import RecoverScreen from '../screens/outside/recoverPassword.screen';
 import MainScreen from '../screens/outside/main.screen'
-import { NavigationRoutes } from './types/navigationRoutes.type';
+import { NavigationRoutes } from '../types/navigationRoutes.type';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();
 
