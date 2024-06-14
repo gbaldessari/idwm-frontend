@@ -1,8 +1,18 @@
 import { create } from 'zustand';
 
+interface Register {
+  id: number;
+  date: string;
+  timeEntry: string;
+  timeExit: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+}
+
 type SelectedRegisterState = {
-  selectedRegister: any;
-  setSelectedRegister: (register: any) => void;
+  selectedRegister: Register | null;
+  setSelectedRegister: (register: Register) => void;
   clearSelectedRegister: () => void;
 };
 
