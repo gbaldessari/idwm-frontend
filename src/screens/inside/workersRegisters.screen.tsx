@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, TouchableOpacity, Button } from 'react-native';
 import { Box, Text } from 'native-base';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import tokenUseStore from '../../useStores/token.useStore';
 import isAdminUseStore from '../../useStores/isAdmin.useStore';
 import getWorkersService from '../../services/getWorkers.service';
 import getRegistersOfWorkersService, { GetRegistersOfWorkersServiceResponseT } from '../../services/getRegistersOfWorkers.service';
 import Toast from 'react-native-toast-message';
 import { workersRegistersStyles } from '../../styles/workersRegisters.styles';
-import { useNavigation } from '@react-navigation/native';
 import selectedRegisterUseStore from '../../useStores/selectedRegister.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
@@ -114,11 +114,13 @@ const WorkersRegistersScreen: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (selectedWorker) {
-      fetchRegisters(selectedWorker.id);
-    }
-  }, [currentWeekOffset, selectedWorker]);
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedWorker) {
+        fetchRegisters(selectedWorker.id);
+      }
+    }, [selectedWorker, currentWeekOffset])
+  );
 
   const handleOnEdit = (register: Register, selectedDate: Date) => {
     if (register.id === 0) {
@@ -126,8 +128,8 @@ const WorkersRegistersScreen: React.FC = () => {
       const payload = {
         id: selectedWorker?.id ?? 0,
         isEntry: true,
-        date: selectedDate.toISOString().split('T')[0], // Use the selected date
-        time: new Date().toLocaleTimeString('es-ES', { hour12: false }), // Use the current time
+        date: selectedDate.toISOString().split('T')[0],
+        time: "00:00:00"
       };
       adminCreateRegisterService(payload).then(response => {
         if (response.success && response.data) {

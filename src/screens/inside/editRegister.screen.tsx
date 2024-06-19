@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button } from 'react-native';
-import { Text } from 'native-base';
+import { View, TextInput } from 'react-native';
+import { Button } from 'react-native-elements';
+import { Text, Center } from 'native-base';
 import Toast from 'react-native-toast-message';
 import selectedRegisterUseStore from '../../useStores/selectedRegister.useStore';
 import { editRegisterStyles } from '../../styles/editRegister.styles';
@@ -9,13 +10,40 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { updateStartRegisterService, updateEndRegisterService } from '../../services/schedule.service';
 
+interface Errors {
+  [key: string]: string | undefined;
+}
+
 const EditRegisterScreen = () => {
   const { selectedRegister, clearSelectedRegister } = selectedRegisterUseStore();
   const [timeEntry, setTimeEntry] = useState(selectedRegister?.timeEntry || '');
   const [timeExit, setTimeExit] = useState(selectedRegister?.timeExit || '');
+  const [errors, setErrors] = useState<Errors>({});
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
+  const handleChange = (name: string, value: string) => {
+    if (name === 'timeEntry') setTimeEntry(value);
+    if (name === 'timeExit') setTimeExit(value);
+  };
+
+  const validate = () => {
+    const errorMessages: Errors = {};
+    const timeRegex = /^([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])$/;
+
+    if (!timeRegex.test(timeEntry)) {
+      errorMessages.timeEntry = 'La hora de entrada debe tener el formato HH:MM:SS.';
+    }
+    if (!timeRegex.test(timeExit)) {
+      errorMessages.timeExit = 'La hora de salida debe tener el formato HH:MM:SS.';
+    }
+    return Object.keys(errorMessages).length ? errorMessages : null;
+  };
+
   const handleSave = async () => {
+    const errors = validate();
+    setErrors(errors || {});
+    if (errors) return;
+
     let response;
     try {
       if (selectedRegister) {
@@ -46,20 +74,41 @@ const EditRegisterScreen = () => {
   return (
     <View style={editRegisterStyles.container}>
       <Text style={editRegisterStyles.label}>Hora de Entrada</Text>
-      <TextInput
-        style={editRegisterStyles.input}
+      <CustomInput
+        placeholder="HH:MM:SS"
         value={timeEntry}
-        onChangeText={setTimeEntry}
+        onChangeText={(value: string) => handleChange('timeEntry', value)}
+        errorMessage={errors.timeEntry}
       />
       <Text style={editRegisterStyles.label}>Hora de Salida</Text>
-      <TextInput
-        style={editRegisterStyles.input}
+      <CustomInput
+        placeholder="HH:MM:SS"
         value={timeExit}
-        onChangeText={setTimeExit}
+        onChangeText={(value: string) => handleChange('timeExit', value)}
+        errorMessage={errors.timeExit}
       />
-      <Button title='Guardar' onPress={handleSave} />
+      <Center>
+        <Button
+          title="Guardar"
+          onPress={handleSave}
+          buttonStyle={editRegisterStyles.button}
+        />
+      </Center>
     </View>
   );
 };
+
+const CustomInput = ({ placeholder, value, onChangeText, errorMessage }: { placeholder: string; value: string; onChangeText: (value: string) => void; errorMessage?: string }) => (
+  <>
+    <TextInput
+      style={editRegisterStyles.input}
+      placeholder={placeholder}
+      value={value}
+      onChangeText={onChangeText}
+      maxLength={8}
+    />
+    {errorMessage ? <Text style={editRegisterStyles.error}>{errorMessage}</Text> : null}
+  </>
+);
 
 export default EditRegisterScreen;
