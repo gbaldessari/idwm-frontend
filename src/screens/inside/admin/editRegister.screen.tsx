@@ -3,12 +3,12 @@ import { View, TextInput } from 'react-native';
 import { Button } from 'react-native-elements';
 import { Text, Center } from 'native-base';
 import Toast from 'react-native-toast-message';
-import selectedRegisterUseStore from '../../useStores/selectedRegister.useStore';
-import { editRegisterStyles } from '../../styles/editRegister.styles';
+import selectedRegisterUseStore from '../../../useStores/selectedRegister.useStore';
+import { editRegisterStyles } from '../../../styles/editRegister.styles';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NavigationRoutes } from '../../types/navigationRoutes.type';
-import { updateStartRegisterService, updateEndRegisterService } from '../../services/schedule.service';
+import { NavigationRoutes } from '../../../types/navigationRoutes.type';
+import { updateStartRegisterService, updateEndRegisterService } from '../../../services/schedule.service';
 
 interface Errors {
   [key: string]: string | undefined;

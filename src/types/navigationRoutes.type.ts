@@ -11,11 +11,12 @@ export type NavigationRoutes = {
       AdminMenu: undefined;
       WorkersRegisters: undefined;
       EditRegister: undefined;
+      GraphicsMenu: undefined;
   Outside: undefined;
     Main: undefined;
     Register: undefined;
     Login: undefined;
-    Forgotten: undefined;
-    Recover: undefined;
+    ForgottenPassword: undefined;
+    RecoverPassword: undefined;
 };
   

@@ -2,16 +2,16 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, TouchableOpacity, Button } from 'react-native';
 import { Box, Text } from 'native-base';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import tokenUseStore from '../../useStores/token.useStore';
-import isAdminUseStore from '../../useStores/isAdmin.useStore';
-import getWorkersService from '../../services/getWorkers.service';
-import getRegistersOfWorkersService, { GetRegistersOfWorkersServiceResponseT } from '../../services/getRegistersOfWorkers.service';
+import tokenUseStore from '../../../useStores/token.useStore';
+import isAdminUseStore from '../../../useStores/isAdmin.useStore';
+import getWorkersService from '../../../services/getWorkers.service';
+import getRegistersOfWorkersService, { GetRegistersOfWorkersServiceResponseT } from '../../../services/getRegistersOfWorkers.service';
 import Toast from 'react-native-toast-message';
-import { workersRegistersStyles } from '../../styles/workersRegisters.styles';
-import selectedRegisterUseStore from '../../useStores/selectedRegister.useStore';
+import { workersRegistersStyles } from '../../../styles/workersRegisters.styles';
+import selectedRegisterUseStore from '../../../useStores/selectedRegister.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NavigationRoutes } from '../../types/navigationRoutes.type';
-import { adminCreateRegisterService } from '../../services/schedule.service';
+import { NavigationRoutes } from '../../../types/navigationRoutes.type';
+import { adminCreateRegisterService } from '../../../services/schedule.service';
 
 interface Worker {
   id: number;
@@ -81,10 +81,10 @@ const WorkersRegistersScreen: React.FC = () => {
   const fetchRegisters = async (workerId: number) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() + currentWeekOffset * 7 - startDate.getDay() + 1);
-    startDate.setHours(0, 0, 0, 0); // Set start date to the beginning of the day
+    startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
-    endDate.setHours(23, 59, 59, 999); // Set end date to the end of the day
+    endDate.setHours(23, 59, 59, 999);
 
     setDateRange({
       startDate: startDate.toISOString().split('T')[0],
@@ -124,7 +124,6 @@ const WorkersRegistersScreen: React.FC = () => {
 
   const handleOnEdit = (register: Register, selectedDate: Date) => {
     if (register.id === 0) {
-      // No existing register, create one
       const payload = {
         id: selectedWorker?.id ?? 0,
         isEntry: true,

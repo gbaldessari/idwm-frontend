@@ -41,7 +41,7 @@ const ForgottenPasswordScreen = () => {
     setLoadingRecover(false);
 
     if (response?.success) {
-      navigation.navigate('Recover');
+      navigation.navigate('RecoverPassword');
     } else{
       Toast.show({
         type: 'error',

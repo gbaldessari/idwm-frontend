@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { View, Platform } from 'react-native';
+import { View } from 'react-native';
 import { Box, Text } from 'native-base';
 import { Button } from 'react-native-elements';
 import * as Location from 'expo-location';
-import tokenUseStore from '../../useStores/token.useStore';
-import {createRegisterService} from '../../services/schedule.service';
+import tokenUseStore from '../../../useStores/token.useStore';
+import {createRegisterService} from '../../../services/schedule.service';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NavigationRoutes } from '../../types/navigationRoutes.type';
-import { homeStyles } from '../../styles/home.styles';
+import { NavigationRoutes } from '../../../types/navigationRoutes.type';
+import { homeStyles } from '../../../styles/home.styles';
 import Toast from 'react-native-toast-message';
 
 const HomeScreen = () => {

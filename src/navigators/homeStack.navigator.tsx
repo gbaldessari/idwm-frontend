@@ -1,9 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../types/navigationRoutes.type';
-import WeekResumeScreen from '../screens/inside/weekResume.screen';
-import HomeScreen from '../screens/inside/home.screen';
-import AdminMenuScreen from '../screens/inside/adminMenu.screen';
+import WeekResumeScreen from '../screens/inside/home/weekResume.screen';
+import HomeScreen from '../screens/inside/home/home.screen';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();
 

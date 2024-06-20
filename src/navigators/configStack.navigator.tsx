@@ -1,8 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SettingsScreen from '../screens/inside/settings.screen';
-import UpdateProfileScreen from '../screens/inside/updateProfile.screen';
-import UpdatePasswordScreen from '../screens/inside/updatePassword.screen';
+import SettingsScreen from '../screens/inside/settings/settings.screen';
+import UpdateProfileScreen from '../screens/inside/settings/updateProfile.screen';
+import UpdatePasswordScreen from '../screens/inside/settings/updatePassword.screen';
 import { NavigationRoutes } from '../types/navigationRoutes.type';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();

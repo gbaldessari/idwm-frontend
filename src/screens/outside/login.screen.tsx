@@ -52,6 +52,11 @@ const LoginScreen = () => {
     }
   }, [formData]);
 
+  const handleForgottenPassword = ()=>{
+    setMailStore(formData.email);
+    navigation.navigate('ForgottenPassword')
+  }
+
   const handleSubmit = async () => {
     const { error } = loginSchema.validate(formData, { abortEarly: false });
     if (error) {
@@ -71,7 +76,6 @@ const LoginScreen = () => {
     if (response?.success) {
       const token = response.data?.token;
       const isAdmin = response.data?.isAdmin;
-      setMailStore(formData.email);
       setIsAdminStore(isAdmin || 3);
       setTokenStore(token || "");
       setFormData({ email: '', password: '' });
@@ -114,7 +118,7 @@ const LoginScreen = () => {
         />
         <Button
           title="¿Olvidó su contraseña?"
-          onPress={() => navigation.navigate('Forgotten')}
+          onPress={handleForgottenPassword}
           type="clear"
           titleStyle={loginStyles.forgottenButtonTitle}
           loading={loading}

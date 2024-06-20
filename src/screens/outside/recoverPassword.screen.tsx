@@ -74,11 +74,6 @@ const RecoverPasswordScreen = () => {
           loading={loading}
           style={recoverPasswordStyles.applyButton}
         />
-        <ActionButton
-          title="Volver"
-          onPress={() => navigation.navigate('Forgotten')}
-          style={recoverPasswordStyles.backButton}
-        />
       </VStack>
     </StyledBox>
   );

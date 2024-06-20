@@ -1,9 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../types/navigationRoutes.type';
-import AdminMenuScreen from '../screens/inside/adminMenu.screen';
-import WorkersRegistersScreen from '../screens/inside/workersRegisters.screen';
-import EditRegisterScreen from '../screens/inside/editRegister.screen';
+import AdminMenuScreen from '../screens/inside/admin/adminMenu.screen';
+import WorkersRegistersScreen from '../screens/inside/admin/workersRegisters.screen';
+import EditRegisterScreen from '../screens/inside/admin/editRegister.screen';
+import GraphicsMenuScreen from '../screens/inside/admin/graphicsMenu.screen';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();
 
@@ -17,7 +18,8 @@ type ScreenConfig = {
 const adminScreens: ScreenConfig[] = [
   { name: 'AdminMenu', component: AdminMenuScreen, headerShown: false },
   { name: 'WorkersRegisters', component: WorkersRegistersScreen, headerShown: true, title: 'Ver Registros' },
-  { name: 'EditRegister', component: EditRegisterScreen, headerShown: true, title: 'Editar Registro' }
+  { name: 'EditRegister', component: EditRegisterScreen, headerShown: true, title: 'Editar Registro' },
+  { name: 'GraphicsMenu', component: GraphicsMenuScreen, headerShown: true, title: 'Ver Graficos' }
 ];
 
 const AdminStackNavigator = () => (
