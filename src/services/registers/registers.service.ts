@@ -80,7 +80,7 @@ export const updateEndRegisterService = async (payload: { token: string; id: num
 
 export const getWeekHoursService = async (payload: { token: string, id: number, startDate: string, endDate: string }): Promise<ServiceResponse<number[]>> => {
     try {
-        const response = await axiosInstance.post('/registers/get-hours/week',
+        const response = await axiosInstance.post('/registers/get-hours-week',
             { id: payload.id, startDate: payload.startDate, endDate: payload.endDate },
             { headers: { Authorization: `Bearer ${payload.token}` } }
         );
@@ -92,7 +92,7 @@ export const getWeekHoursService = async (payload: { token: string, id: number, 
 
 export const getYearHoursService = async (payload: { token: string, id: number, startDate: string, endDate: string }): Promise<ServiceResponse<number[]>> => {
     try {
-        const response = await axiosInstance.post('/registers/get-hours/year',
+        const response = await axiosInstance.post('/registers/get-hours-year',
             { id: payload.id, startDate: payload.startDate, endDate: payload.endDate },
             { headers: { Authorization: `Bearer ${payload.token}` } }
         );

@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, TouchableOpacity, Button, StyleSheet, Dimensions } from 'react-native';
 import { Text } from 'native-base';
-import { LineChart, BarChart } from 'react-native-chart-kit';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { BarChart } from 'react-native-chart-kit';
+import { useFocusEffect } from '@react-navigation/native';
 import tokenUseStore from '../../../useStores/token.useStore';
 import isAdminUseStore from '../../../useStores/isAdmin.useStore';
 import Toast from 'react-native-toast-message';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NavigationRoutes } from '../../../types/navigationRoutes.type';
 import { getWorkersService } from '../../../services/auth/auth.service';
 import { getWeekHoursService, getYearHoursService } from '../../../services/registers/registers.service';
 
@@ -24,10 +22,12 @@ const GraphicsMenuScreen = () => {
   const { storedIsAdmin } = isAdminUseStore();
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
-  const [weeklyData, setWeeklyData] = useState<number[]>([]);
-  const [monthlyData, setMonthlyData] = useState<number[]>([]);
+  const [weeklyData, setWeeklyData] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [monthlyData, setMonthlyData] = useState<number[]>(Array(12).fill(0));
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [weekRange, setWeekRange] = useState('');
+  const [yearRange, setYearRange] = useState('');
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -57,21 +57,32 @@ const GraphicsMenuScreen = () => {
     startDate.setDate(startDate.getDate() + offset * 7 - startDate.getDay() + 1);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
-  
+
+    setWeekRange(`${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`);
+
     const payload = {
       token: storedToken,
       id: workerId,
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
-  
+
     const response = await getWeekHoursService(payload);
     if (response.success) {
-      // Verifica si response.data es definido antes de asignar el estado
-      if (response.data) {
-        setWeeklyData(response.data);
+      if (response.data && response.data.length > 0) {
+        const daysOfWeek = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+        const weeklyHours = Array(7).fill(0);
+        response.data.forEach((item: any) => {
+          const dayIndex = daysOfWeek.indexOf(item.day.toLowerCase());
+          if (dayIndex !== -1) {
+            weeklyHours[dayIndex] = parseFloat(item.hoursWorked);
+          }
+        });
+        setWeeklyData(weeklyHours);
+        console.log("Processed Weekly Data:", weeklyHours); // Debug log
       } else {
-        setWeeklyData([]); // Asigna un arreglo vacío si response.data es undefined
+        setWeeklyData([0, 0, 0, 0, 0, 0, 0]);
+        console.log("No valid weekly data", response.data); // Debug log
       }
     } else {
       Toast.show({
@@ -80,25 +91,35 @@ const GraphicsMenuScreen = () => {
       });
     }
   };
-  
+
   const fetchMonthlyData = async (workerId: number, year: number) => {
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
-  
+
+    setYearRange(`${startDate} - ${endDate}`);
+
     const payload = {
       token: storedToken,
       id: workerId,
       startDate,
       endDate
     };
-  
+
     const response = await getYearHoursService(payload);
     if (response.success) {
-      // Verifica si response.data es definido antes de asignar el estado
-      if (response.data) {
-        setMonthlyData(response.data);
+      if (response.data && response.data.length > 0) {
+        const monthlyHours = Array(12).fill(0);
+        response.data.forEach((item: any) => {
+          const monthIndex = item.month - 1; // assuming month is 1-based index
+          if (monthIndex >= 0 && monthIndex < 12) {
+            monthlyHours[monthIndex] += parseFloat(item.hoursWorked);
+          }
+        });
+        setMonthlyData(monthlyHours);
+        console.log("Processed Monthly Data:", monthlyHours); // Debug log
       } else {
-        setMonthlyData([]); // Asigna un arreglo vacío si response.data es undefined
+        setMonthlyData(Array(12).fill(0));
+        console.log("No valid monthly data", response.data); // Debug log
       }
     } else {
       Toast.show({
@@ -117,42 +138,49 @@ const GraphicsMenuScreen = () => {
     }, [selectedWorker, currentWeekOffset, currentYear])
   );
 
-  const renderWeeklyChart = () => (
+  const renderWeeklyChart = () => {
+    const maxHours = Math.max(...weeklyData, 8);
+
+    return (
+      <View style={styles.chartContainer}>
+        <Text style={styles.chartTitle}>Horas Trabajadas Semanales</Text>
+        <BarChart
+          data={{
+            labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+            datasets: [{ data: weeklyData }]
+          }}
+          width={screenWidth - 40}
+          height={220}
+          yAxisLabel=""
+          yAxisSuffix=" h"
+          chartConfig={chartConfig}
+          fromZero={true}
+          yAxisInterval={2}
+        />
+      </View>
+    );
+  };
+
+  const renderMonthlyChart = () => (
     <View style={styles.chartContainer}>
-      <Text style={styles.chartTitle}>Horas Trabajadas Semanales</Text>
-      <LineChart
+      <Text style={styles.chartTitle}>Horas Promedio Mensuales</Text>
+      <BarChart
         data={{
-          labels: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
-          datasets: [{ data: weeklyData }]
+          labels: [
+            "En", "Feb", "Mar", "Abr", "May", "Jun",
+            "Jul", "Ag", "Sep", "Oct", "Nov", "Dic"
+          ],
+          datasets: [{ data: monthlyData }]
         }}
         width={screenWidth - 40}
         height={220}
+        yAxisLabel=""
+        yAxisSuffix=" h"
         chartConfig={chartConfig}
-        bezier
+        fromZero={true}
       />
     </View>
   );
-
-  const renderMonthlyChart = () => (
-  <View style={styles.chartContainer}>
-    <Text style={styles.chartTitle}>Horas Promedio Mensuales</Text>
-    <BarChart
-      data={{
-        labels: [
-          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ],
-        datasets: [{ data: monthlyData }]
-      }}
-      width={screenWidth - 40}
-      height={220}
-      yAxisLabel="h"
-      yAxisSuffix="h"
-      chartConfig={chartConfig}
-    />
-  </View>
-);
-
 
   const isNextWeekDisabled = () => {
     const today = new Date();
@@ -177,11 +205,13 @@ const GraphicsMenuScreen = () => {
       {selectedWorker && (
         <>
           <Text style={styles.subtitle}>Horas de Trabajo de {selectedWorker.name} {selectedWorker.lastName}</Text>
+          <Text style={styles.dateRange}>{weekRange}</Text>
           <View style={styles.buttonContainer}>
             <Button title="Semana Anterior" onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)} />
             <Button title="Semana Siguiente" onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} disabled={isNextWeekDisabled()} />
           </View>
           {renderWeeklyChart()}
+          <Text style={styles.dateRange}>{yearRange}</Text>
           <View style={styles.buttonContainer}>
             <Button title="Año Anterior" onPress={() => setCurrentYear(currentYear - 1)} />
             <Button title="Año Siguiente" onPress={() => setCurrentYear(currentYear + 1)} disabled={currentYear >= new Date().getFullYear()} />
@@ -194,11 +224,11 @@ const GraphicsMenuScreen = () => {
 };
 
 const chartConfig = {
-  backgroundGradientFrom: "#1E2923",
+  backgroundGradientFrom: "#ffffff",
   backgroundGradientFromOpacity: 0,
-  backgroundGradientTo: "#08130D",
-  backgroundGradientToOpacity: 0.5,
-  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+  backgroundGradientTo: "#ffffff",
+  backgroundGradientToOpacity: 0,
+  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   strokeWidth: 2,
   barPercentage: 0.5,
   useShadowColorFromDataset: false
@@ -210,32 +240,38 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   workerContainer: {
-    marginBottom: 10,
-    padding: 10,
     backgroundColor: '#f0f0f0',
-    borderRadius: 5
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    width: '90%'
   },
   workerText: {
     fontSize: 18
   },
-  chartContainer: {
-    marginBottom: 30,
-    alignItems: 'center'
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10
-  },
   subtitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginVertical: 20
+    marginVertical: 10
+  },
+  dateRange: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    marginBottom: 10
+  },
+  chartContainer: {
+    marginVertical: 10
+  },
+  chartTitle: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 10
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 10
+    width: '90%',
+    marginBottom: 10
   }
 });
 
