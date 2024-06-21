@@ -1,14 +1,5 @@
 import { create } from 'zustand';
-
-interface Register {
-  id: number;
-  date: string;
-  timeEntry: string;
-  timeExit: string;
-  createdAt: string;
-  updatedAt: string;
-  userId: number;
-}
+import { Register } from '../types/services.types';
 
 type SelectedRegisterState = {
   selectedRegister: Register | null;

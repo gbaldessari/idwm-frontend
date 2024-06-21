@@ -3,10 +3,10 @@ import { View } from 'react-native';
 import { Box, Text, VStack } from 'native-base';
 import { Button } from 'react-native-elements';
 import tokenUseStore from '../../../useStores/token.useStore';
-import getRegistersByRangeService from '../../../services/getRegistersByRange.service';
 import { getCurrentWeekDates, getPreviousWeekDates, getNextWeekDates } from '../../../utils/date.utils';
 import { weekResumeStyles } from '../../../styles/weekResume.styles';
 import Toast from 'react-native-toast-message';
+import { getRegistersByRangeService } from '../../../services/registers/registers.service';
 
 const WeekResumeScreen = () => {
   const { storedToken } = tokenUseStore();

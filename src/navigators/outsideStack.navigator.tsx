@@ -20,8 +20,8 @@ const stackScreens: ScreenConfig[] = [
   { name: 'Main', component: MainScreen, headerShown: false },
   { name: 'Login', component: LoginScreen, headerShown: true, title: 'Ingreso' },
   { name: 'Register', component: RegisterScreen, headerShown: true, title: 'Registro' },
-  { name: 'Forgotten', component: ForgottenScreen, headerShown: true, title: 'Contraseña Olvidada' },
-  { name: 'Recover', component: RecoverScreen, headerShown: false, title: 'Recuperar Contraseña' },
+  { name: 'ForgottenPassword', component: ForgottenScreen, headerShown: true, title: 'Contraseña Olvidada' },
+  { name: 'RecoverPassword', component: RecoverScreen, headerShown: false, title: 'Recuperar Contraseña' },
 ];
 
 const OutsideStackNavigator = () => (

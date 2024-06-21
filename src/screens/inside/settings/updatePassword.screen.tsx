@@ -4,12 +4,12 @@ import { Button } from 'react-native-elements';
 import { Box, Text, VStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ChangePasswordService from '../../../services/changePassword.service';
 import tokenUseStore from '../../../useStores/token.useStore';
 import { NavigationRoutes } from '../../../types/navigationRoutes.type';
 import { updatePasswordSchema } from '../../../schemas/updatePassword.schema';
 import { updatePasswordStyles } from '../../../styles/updatePassword.styles';
 import Toast from 'react-native-toast-message';
+import { changePasswordService } from '../../../services/auth/auth.service';
 
 interface PasswordData {
   oldPassword: string;
@@ -52,7 +52,7 @@ const UpdatePasswordScreen = () => {
     if (errors) return;
 
     setLoading(true);
-    const response = await ChangePasswordService({ token, ...passwordData });
+    const response = await changePasswordService({ token, ...passwordData });
     setLoading(false);
 
     if (response?.success) {

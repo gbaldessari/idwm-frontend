@@ -5,11 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import useStore from '../../useStores/mail.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Center } from 'native-base';
-import RecoverPasswordService from '../../services/recoverPassword.service';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { forgottenPasswordStyles } from '../../styles/forgottenPassword.styles';
 import { forgotenPasswordSchema } from '../../schemas/forgottenPassword.schema';
 import Toast from 'react-native-toast-message';
+import { recoverPasswordService } from '../../services/auth/auth.service';
 
 const ForgottenPasswordScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
@@ -36,7 +36,7 @@ const ForgottenPasswordScreen = () => {
 
     setIsDisabledText(true);
     setLoadingRecover(true);
-    const response = await RecoverPasswordService({ email });
+    const response = await recoverPasswordService({ email });
     setIsDisabledText(false);
     setLoadingRecover(false);
 

@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Box, Center, VStack, Spinner } from 'native-base';
 import { View } from 'react-native';
 import { Button, Input } from 'react-native-elements';
-import getUserDataService from "../../../services/getUserData.service";
 import tokenUseStore from "../../../useStores/token.useStore";
 import { useNavigation } from '@react-navigation/core';
 import 'text-encoding-polyfill';
 import Joi from 'joi';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import updateUserDataService from '../../../services/updateUserData.service';
 import { NavigationRoutes } from '../../../types/navigationRoutes.type';
 import { updateProfileSchema } from '../../../schemas/updateProfile.schema';
 import { updateProfileStyles } from '../../../styles/updateProfile.styles';
 import Toast from 'react-native-toast-message';
+import { getUserDataService, updateUserDataService } from '../../../services/auth/auth.service';
 
 type FormDataT = {
     name: string;

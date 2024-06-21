@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput } from 'react-native';
 import { Button } from 'react-native-elements';
 import { Text, Center } from 'native-base';
@@ -8,7 +8,8 @@ import { editRegisterStyles } from '../../../styles/editRegister.styles';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../../types/navigationRoutes.type';
-import { updateStartRegisterService, updateEndRegisterService } from '../../../services/schedule.service';
+import { updateEndRegisterService, updateStartRegisterService } from '../../../services/registers/registers.service';
+import tokenUseStore from '../../../useStores/token.useStore';
 
 interface Errors {
   [key: string]: string | undefined;
@@ -19,11 +20,22 @@ const EditRegisterScreen = () => {
   const [timeEntry, setTimeEntry] = useState(selectedRegister?.timeEntry || '');
   const [timeExit, setTimeExit] = useState(selectedRegister?.timeExit || '');
   const [errors, setErrors] = useState<Errors>({});
+  const { storedToken } = tokenUseStore();
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
+
+  useEffect(() => {
+    setTimeEntry(selectedRegister?.timeEntry || '');
+    setTimeExit(selectedRegister?.timeExit || '');
+  }, [selectedRegister]);
 
   const handleChange = (name: string, value: string) => {
     if (name === 'timeEntry') setTimeEntry(value);
     if (name === 'timeExit') setTimeExit(value);
+  };
+
+  const timeToSeconds = (time: string) => {
+    const [hours, minutes, seconds] = time.split(':').map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
   };
 
   const validate = () => {
@@ -36,6 +48,11 @@ const EditRegisterScreen = () => {
     if (!timeRegex.test(timeExit)) {
       errorMessages.timeExit = 'La hora de salida debe tener el formato HH:MM:SS.';
     }
+    if (!errorMessages.timeEntry && !errorMessages.timeExit) {
+      if (timeToSeconds(timeEntry) >= timeToSeconds(timeExit)) {
+        errorMessages.timeExit = 'La hora de salida debe ser mayor que la hora de entrada.';
+      }
+    }
     return Object.keys(errorMessages).length ? errorMessages : null;
   };
 
@@ -43,16 +60,18 @@ const EditRegisterScreen = () => {
     const errors = validate();
     setErrors(errors || {});
     if (errors) return;
-
+  
     let response;
     try {
       if (selectedRegister) {
         if (timeEntry !== selectedRegister.timeEntry) {
-          response = await updateStartRegisterService({ id: selectedRegister.id, startDate: timeEntry });
+          response = await updateStartRegisterService({ token: storedToken, id: selectedRegister.id, date: timeEntry });
+          console.log('updateStartRegisterService response:', response);
           if (!response.success) throw new Error('Error updating start register');
         }
         if (timeExit !== selectedRegister.timeExit) {
-          response = await updateEndRegisterService({ id: selectedRegister.id, endDate: timeExit });
+          response = await updateEndRegisterService({ token: storedToken, id: selectedRegister.id, date: timeExit });
+          console.log('updateEndRegisterService response:', response);
           if (!response.success) throw new Error('Error updating end register');
         }
         Toast.show({
@@ -63,14 +82,14 @@ const EditRegisterScreen = () => {
         navigation.navigate("WorkersRegisters");
       }
     } catch (error) {
-      console.log(error);
+      console.log('Error:', error);
       Toast.show({
         type: 'error',
         text1: 'Error al actualizar el registro'
       });
     }
   };
-
+  
   return (
     <View style={editRegisterStyles.container}>
       <Text style={editRegisterStyles.label}>Hora de Entrada</Text>

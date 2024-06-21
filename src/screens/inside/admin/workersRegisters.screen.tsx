@@ -4,29 +4,19 @@ import { Box, Text } from 'native-base';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import tokenUseStore from '../../../useStores/token.useStore';
 import isAdminUseStore from '../../../useStores/isAdmin.useStore';
-import getWorkersService from '../../../services/getWorkers.service';
-import getRegistersOfWorkersService, { GetRegistersOfWorkersServiceResponseT } from '../../../services/getRegistersOfWorkers.service';
 import Toast from 'react-native-toast-message';
 import { workersRegistersStyles } from '../../../styles/workersRegisters.styles';
 import selectedRegisterUseStore from '../../../useStores/selectedRegister.useStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../../types/navigationRoutes.type';
-import { adminCreateRegisterService } from '../../../services/schedule.service';
+import { getWorkersService } from '../../../services/auth/auth.service';
+import { adminCreateRegisterService, getRegistersOfWorkersService } from '../../../services/registers/registers.service';
+import { Register, ServiceResponse } from '../../../types/services.types';
 
 interface Worker {
   id: number;
   name: string;
   lastName: string;
-}
-
-interface Register {
-  id: number;
-  date: string;
-  timeEntry: string;
-  timeExit: string;
-  createdAt: string;
-  updatedAt: string;
-  userId: number;
 }
 
 const emptyRegister: Register = {
@@ -54,6 +44,7 @@ const WorkersRegistersScreen: React.FC = () => {
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange>({ startDate: '', endDate: '' });
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
+  
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -92,12 +83,13 @@ const WorkersRegistersScreen: React.FC = () => {
     });
 
     const payload = {
+      token: storedToken,
       id: workerId.toString(),
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
 
-    const response: GetRegistersOfWorkersServiceResponseT = await getRegistersOfWorkersService(payload);
+    const response: ServiceResponse<Register[]> = await getRegistersOfWorkersService(payload);
     if (response.success) {
       if (response.data?.length === 0) {
         Toast.show({
@@ -125,19 +117,21 @@ const WorkersRegistersScreen: React.FC = () => {
   const handleOnEdit = (register: Register, selectedDate: Date) => {
     if (register.id === 0) {
       const payload = {
+        token: storedToken,
         id: selectedWorker?.id ?? 0,
-        isEntry: true,
         date: selectedDate.toISOString().split('T')[0],
-        time: "00:00:00"
       };
       adminCreateRegisterService(payload).then(response => {
         if (response.success && response.data) {
-          const newRegister = {
-            ...register,
-            id: response.data.userId,
+          console.log(response);
+          const newRegister: Register = {
+            id: response.data,
             userId: selectedWorker?.id ?? 0,
             date: payload.date,
-            timeEntry: payload.time,
+            timeEntry: '00:00:00',
+            timeExit: '00:00:00',
+            createdAt: '',
+            updatedAt: ''
           };
           setSelectedRegister(newRegister);
           navigation.navigate('EditRegister');
@@ -152,7 +146,7 @@ const WorkersRegistersScreen: React.FC = () => {
       setSelectedRegister(register);
       navigation.navigate('EditRegister');
     }
-  };
+  };  
 
   const renderTable = () => {
     const startDate = new Date(dateRange.startDate);

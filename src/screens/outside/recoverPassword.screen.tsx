@@ -4,11 +4,11 @@ import { Button } from 'react-native-elements';
 import { Box, Text, VStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ChangeForgottenPasswordService from '../../services/changeForgottenPassword.service';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { recoverPasswordSchema } from '../../schemas/recoverPassword.schema';
 import { recoverPasswordStyles } from '../../styles/recoverPassword.styles';
 import Toast from 'react-native-toast-message';
+import { changeForgottenPasswordService } from '../../services/auth/auth.service';
 
 const RecoverPasswordScreen = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -34,7 +34,7 @@ const RecoverPasswordScreen = () => {
     }
 
     setLoading(true);
-    const response = await ChangeForgottenPasswordService({ token, newPassword });
+    const response = await changeForgottenPasswordService({ token, newPassword });
     setLoading(false);
 
     if (response?.success) {

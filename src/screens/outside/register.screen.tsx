@@ -4,11 +4,11 @@ import { Button } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Center, Text } from 'native-base';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import registerService from '../../services/register.services';
 import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { registerSchema } from '../../schemas/register.schema';
 import { registerStyles } from '../../styles/register.styles';
 import Toast from 'react-native-toast-message';
+import { registerService } from '../../services/auth/auth.service';
 
 interface FormData {
   name: string;

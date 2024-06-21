@@ -4,7 +4,6 @@ import { Button, Input } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
 import { Center, Text } from 'native-base';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import loginService from '../../services/login.service';
 import mailUseStore from '../../useStores/mail.useStore';
 import tokenUseStore from '../../useStores/token.useStore';
 import isAdminUseStore from '../../useStores/isAdmin.useStore'
@@ -12,6 +11,7 @@ import { NavigationRoutes } from '../../types/navigationRoutes.type';
 import { loginStyles } from '../../styles/login.styles';
 import { loginSchema } from '../../schemas/login.schema';
 import Toast from 'react-native-toast-message';
+import { loginService } from '../../services/auth/auth.service';
 
 interface FormData {
   email: string;
