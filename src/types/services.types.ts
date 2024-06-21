@@ -19,3 +19,9 @@ export type GetRegistersByRangeServiceResponseT = {
     data?: any;
     error?: string;
 };
+
+export type Worker = {
+    id: number;
+    name: string;
+    lastName: string;
+  }

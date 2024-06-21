@@ -8,7 +8,7 @@ const axiosInstance: AxiosInstance = axios.create({
 export const getRegistersByRangeService = async (payload: { token: string, startDate: string, endDate: string }): Promise<ServiceResponse<any>> => {
     try {
         const response = await axiosInstance.post('/registers/get-registers-by-rangeData',
-            { token:payload.token, startDate: payload.startDate, endDate: payload.endDate }
+            { token: payload.token, startDate: payload.startDate, endDate: payload.endDate }
         );
         return { success: true, data: response.data };
     } catch (error) {
@@ -28,7 +28,7 @@ export const getRegistersOfWorkersService = async (payload: { token: string, id:
     }
 };
 
-export const createRegisterService = async (payload: { token: string; isEntry: boolean; latitude: number; longitude: number }): Promise<ServiceResponse<{ userId: number }>> => {
+export const createRegisterService = async (payload: { token: string; isEntry: boolean; latitude: number; longitude: number }): Promise<ServiceResponse<number>> => {
     try {
         const response = await axiosInstance.post('/registers/create-register',
             { isEntry: payload.isEntry, latitude: payload.latitude, longitude: payload.longitude },
@@ -78,3 +78,26 @@ export const updateEndRegisterService = async (payload: { token: string; id: num
     }
 };
 
+export const getWeekHoursService = async (payload: { token: string, id: number, startDate: string, endDate: string }): Promise<ServiceResponse<number[]>> => {
+    try {
+        const response = await axiosInstance.post('/registers/get-hours/week',
+            { id: payload.id, startDate: payload.startDate, endDate: payload.endDate },
+            { headers: { Authorization: `Bearer ${payload.token}` } }
+        );
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: String(error) };
+    }
+};
+
+export const getYearHoursService = async (payload: { token: string, id: number, startDate: string, endDate: string }): Promise<ServiceResponse<number[]>> => {
+    try {
+        const response = await axiosInstance.post('/registers/get-hours/year',
+            { id: payload.id, startDate: payload.startDate, endDate: payload.endDate },
+            { headers: { Authorization: `Bearer ${payload.token}` } }
+        );
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, error: String(error) };
+    }
+};

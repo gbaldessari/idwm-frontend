@@ -1,152 +1,194 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, ScrollView, TouchableOpacity, Button, StyleSheet, Dimensions } from 'react-native';
 import { Text } from 'native-base';
-import { LineChart, BarChart, PieChart, ProgressChart, ContributionGraph } from 'react-native-chart-kit';
-import { useNavigation } from '@react-navigation/native';
+import { LineChart, BarChart } from 'react-native-chart-kit';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import tokenUseStore from '../../../useStores/token.useStore';
+import isAdminUseStore from '../../../useStores/isAdmin.useStore';
+import Toast from 'react-native-toast-message';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NavigationRoutes } from '../../../types/navigationRoutes.type';
+import { getWorkersService } from '../../../services/auth/auth.service';
+import { getWeekHoursService, getYearHoursService } from '../../../services/registers/registers.service';
+
+interface Worker {
+  id: number;
+  name: string;
+  lastName: string;
+}
 
 const screenWidth = Dimensions.get('window').width;
 
-const dataLineChart = {
-  labels: ["January", "February", "March", "April", "May", "June"],
-  datasets: [
-    {
-      data: [20, 45, 28, 80, 99, 43],
-      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
-      strokeWidth: 2
-    }
-  ],
-  legend: ["Rainy Days"]
-};
-
-const dataBarChart = {
-  labels: ["January", "February", "March", "April", "May", "June"],
-  datasets: [
-    {
-      data: [20, 45, 28, 80, 99, 43]
-    }
-  ]
-};
-
-const dataPieChart = [
-  {
-    name: "Seoul",
-    population: 21500000,
-    color: "rgba(131, 167, 234, 1)",
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 15
-  },
-  {
-    name: "Toronto",
-    population: 2800000,
-    color: "#F00",
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 15
-  },
-  {
-    name: "Beijing",
-    population: 527612,
-    color: "red",
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 15
-  },
-  {
-    name: "New York",
-    population: 8538000,
-    color: "#ffffff",
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 15
-  },
-  {
-    name: "Moscow",
-    population: 11920000,
-    color: "rgb(0, 0, 255)",
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 15
-  }
-];
-
-const dataProgressChart = {
-  labels: ["Swim", "Bike", "Run"], 
-  data: [0.4, 0.6, 0.8]
-};
-
-const dataContributionGraph = [
-  { date: "2017-01-01", count: 1 },
-  { date: "2017-01-02", count: 2 },
-  { date: "2017-01-03", count: 3 },
-  { date: "2017-01-04", count: 4 },
-  { date: "2017-01-05", count: 5 },
-  { date: "2017-01-06", count: 2 },
-  { date: "2017-01-07", count: 3 },
-  { date: "2017-01-08", count: 4 },
-  { date: "2017-01-09", count: 4 },
-  { date: "2017-01-10", count: 4 },
-  { date: "2017-01-11", count: 4 }
-];
-
 const GraphicsMenuScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
+  const { storedToken } = tokenUseStore();
+  const { storedIsAdmin } = isAdminUseStore();
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
+  const [weeklyData, setWeeklyData] = useState<number[]>([]);
+  const [monthlyData, setMonthlyData] = useState<number[]>([]);
+  const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    const fetchWorkers = async () => {
+      if (storedIsAdmin === 3) {
+        Toast.show({
+          type: 'error',
+          text1: 'Usuario no autorizado'
+        });
+        return;
+      }
+
+      const response = await getWorkersService(storedToken);
+      if (response.success) {
+        setWorkers(response.data.data);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error al obtener trabajadores'
+        });
+      }
+    };
+    fetchWorkers();
+  }, [storedToken, storedIsAdmin]);
+
+  const fetchWeeklyData = async (workerId: number, offset: number) => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + offset * 7 - startDate.getDay() + 1);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+  
+    const payload = {
+      token: storedToken,
+      id: workerId,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0]
+    };
+  
+    const response = await getWeekHoursService(payload);
+    if (response.success) {
+      // Verifica si response.data es definido antes de asignar el estado
+      if (response.data) {
+        setWeeklyData(response.data);
+      } else {
+        setWeeklyData([]); // Asigna un arreglo vacío si response.data es undefined
+      }
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Error al obtener horas semanales'
+      });
+    }
+  };
+  
+  const fetchMonthlyData = async (workerId: number, year: number) => {
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
+  
+    const payload = {
+      token: storedToken,
+      id: workerId,
+      startDate,
+      endDate
+    };
+  
+    const response = await getYearHoursService(payload);
+    if (response.success) {
+      // Verifica si response.data es definido antes de asignar el estado
+      if (response.data) {
+        setMonthlyData(response.data);
+      } else {
+        setMonthlyData([]); // Asigna un arreglo vacío si response.data es undefined
+      }
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Error al obtener horas anuales'
+      });
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedWorker) {
+        fetchWeeklyData(selectedWorker.id, currentWeekOffset);
+        fetchMonthlyData(selectedWorker.id, currentYear);
+      }
+    }, [selectedWorker, currentWeekOffset, currentYear])
+  );
+
+  const renderWeeklyChart = () => (
+    <View style={styles.chartContainer}>
+      <Text style={styles.chartTitle}>Horas Trabajadas Semanales</Text>
+      <LineChart
+        data={{
+          labels: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
+          datasets: [{ data: weeklyData }]
+        }}
+        width={screenWidth - 40}
+        height={220}
+        chartConfig={chartConfig}
+        bezier
+      />
+    </View>
+  );
+
+  const renderMonthlyChart = () => (
+  <View style={styles.chartContainer}>
+    <Text style={styles.chartTitle}>Horas Promedio Mensuales</Text>
+    <BarChart
+      data={{
+        labels: [
+          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ],
+        datasets: [{ data: monthlyData }]
+      }}
+      width={screenWidth - 40}
+      height={220}
+      yAxisLabel="h"
+      yAxisSuffix="h"
+      chartConfig={chartConfig}
+    />
+  </View>
+);
+
+
+  const isNextWeekDisabled = () => {
+    const today = new Date();
+    const currentStartDate = new Date();
+    currentStartDate.setDate(currentStartDate.getDate() + currentWeekOffset * 7 - currentStartDate.getDay() + 1);
+    return currentStartDate > today;
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Gráficos</Text>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Line Chart</Text>
-        <LineChart
-          data={dataLineChart}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          bezier
-        />
-      </View>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Bar Chart</Text>
-        <BarChart
-          data={dataBarChart}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          yAxisLabel="$"
-          yAxisSuffix="k"
-        />
-      </View>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Pie Chart</Text>
-        <PieChart
-          data={dataPieChart}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          accessor={"population"}
-          backgroundColor={"transparent"}
-          paddingLeft={"15"}
-          absolute
-        />
-      </View>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Progress Chart</Text>
-        <ProgressChart
-          data={dataProgressChart}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-        />
-      </View>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Contribution Graph</Text>
-        <ContributionGraph
-          values={dataContributionGraph}
-          endDate={new Date("2017-04-01")}
-          numDays={105}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          tooltipDataAttrs={() => ({ fill: 'black' })}
-        />
-      </View>
+      {workers.map((worker: Worker) => (
+        <TouchableOpacity key={worker.id} onPress={() => {
+          setSelectedWorker(worker);
+          fetchWeeklyData(worker.id, currentWeekOffset);
+          fetchMonthlyData(worker.id, currentYear);
+        }}>
+          <View style={styles.workerContainer}>
+            <Text style={styles.workerText}>{worker.name} {worker.lastName}</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
+      {selectedWorker && (
+        <>
+          <Text style={styles.subtitle}>Horas de Trabajo de {selectedWorker.name} {selectedWorker.lastName}</Text>
+          <View style={styles.buttonContainer}>
+            <Button title="Semana Anterior" onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)} />
+            <Button title="Semana Siguiente" onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} disabled={isNextWeekDisabled()} />
+          </View>
+          {renderWeeklyChart()}
+          <View style={styles.buttonContainer}>
+            <Button title="Año Anterior" onPress={() => setCurrentYear(currentYear - 1)} />
+            <Button title="Año Siguiente" onPress={() => setCurrentYear(currentYear + 1)} disabled={currentYear >= new Date().getFullYear()} />
+          </View>
+          {renderMonthlyChart()}
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -157,7 +199,7 @@ const chartConfig = {
   backgroundGradientTo: "#08130D",
   backgroundGradientToOpacity: 0.5,
   color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-  strokeWidth: 2, 
+  strokeWidth: 2,
   barPercentage: 0.5,
   useShadowColorFromDataset: false
 };
@@ -167,10 +209,14 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems: 'center'
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20
+  workerContainer: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5
+  },
+  workerText: {
+    fontSize: 18
   },
   chartContainer: {
     marginBottom: 30,
@@ -180,6 +226,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 20
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10
   }
 });
 
