@@ -4,7 +4,7 @@ import { NavigationRoutes } from '../types/navigationRoutes.type';
 import AdminMenuScreen from '../screens/inside/admin/adminMenu.screen';
 import WorkersRegistersScreen from '../screens/inside/admin/workersRegisters.screen';
 import EditRegisterScreen from '../screens/inside/admin/editRegister.screen';
-import GraphicsMenuScreen from '../screens/inside/admin/graphicsMenu.screen';
+import GraphicsMenuScreen from '../screens/inside/admin/graphics.screen';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();
 

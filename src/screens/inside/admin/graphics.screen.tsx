@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, Button, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Button, Dimensions } from 'react-native';
 import { Text } from 'native-base';
 import { BarChart } from 'react-native-chart-kit';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import isAdminUseStore from '../../../useStores/isAdmin.useStore';
 import Toast from 'react-native-toast-message';
 import { getWorkersService } from '../../../services/auth/auth.service';
 import { getWeekHoursService, getYearHoursService } from '../../../services/registers/registers.service';
+import { graphicsStyles } from '../../../styles/graphics.styles';
 
 interface Worker {
   id: number;
@@ -79,10 +80,8 @@ const GraphicsMenuScreen = () => {
           }
         });
         setWeeklyData(weeklyHours);
-        console.log("Processed Weekly Data:", weeklyHours); // Debug log
       } else {
         setWeeklyData([0, 0, 0, 0, 0, 0, 0]);
-        console.log("No valid weekly data", response.data); // Debug log
       }
     } else {
       Toast.show({
@@ -96,7 +95,7 @@ const GraphicsMenuScreen = () => {
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
-    setYearRange(`${startDate} - ${endDate}`);
+    setYearRange(String(year));
 
     const payload = {
       token: storedToken,
@@ -110,16 +109,14 @@ const GraphicsMenuScreen = () => {
       if (response.data && response.data.length > 0) {
         const monthlyHours = Array(12).fill(0);
         response.data.forEach((item: any) => {
-          const monthIndex = item.month - 1; // assuming month is 1-based index
+          const monthIndex = item.month - 1;
           if (monthIndex >= 0 && monthIndex < 12) {
             monthlyHours[monthIndex] += parseFloat(item.hoursWorked);
           }
         });
         setMonthlyData(monthlyHours);
-        console.log("Processed Monthly Data:", monthlyHours); // Debug log
       } else {
         setMonthlyData(Array(12).fill(0));
-        console.log("No valid monthly data", response.data); // Debug log
       }
     } else {
       Toast.show({
@@ -139,11 +136,9 @@ const GraphicsMenuScreen = () => {
   );
 
   const renderWeeklyChart = () => {
-    const maxHours = Math.max(...weeklyData, 8);
-
     return (
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Horas Trabajadas Semanales</Text>
+      <View style={graphicsStyles.chartContainer}>
+        <Text style={graphicsStyles.chartTitle}>Horas Trabajadas Semanales</Text>
         <BarChart
           data={{
             labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
@@ -162,8 +157,8 @@ const GraphicsMenuScreen = () => {
   };
 
   const renderMonthlyChart = () => (
-    <View style={styles.chartContainer}>
-      <Text style={styles.chartTitle}>Horas Promedio Mensuales</Text>
+    <View style={graphicsStyles.chartContainer}>
+      <Text style={graphicsStyles.chartTitle}>Horas Promedio Mensuales</Text>
       <BarChart
         data={{
           labels: [
@@ -190,29 +185,29 @@ const GraphicsMenuScreen = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={graphicsStyles.container}>
       {workers.map((worker: Worker) => (
         <TouchableOpacity key={worker.id} onPress={() => {
           setSelectedWorker(worker);
           fetchWeeklyData(worker.id, currentWeekOffset);
           fetchMonthlyData(worker.id, currentYear);
         }}>
-          <View style={styles.workerContainer}>
-            <Text style={styles.workerText}>{worker.name} {worker.lastName}</Text>
+          <View style={graphicsStyles.workerContainer}>
+            <Text style={graphicsStyles.workerText}>{worker.name} {worker.lastName}</Text>
           </View>
         </TouchableOpacity>
       ))}
       {selectedWorker && (
         <>
-          <Text style={styles.subtitle}>Horas de Trabajo de {selectedWorker.name} {selectedWorker.lastName}</Text>
-          <Text style={styles.dateRange}>{weekRange}</Text>
-          <View style={styles.buttonContainer}>
+          <Text style={graphicsStyles.subtitle}>Horas de Trabajo de {selectedWorker.name} {selectedWorker.lastName}</Text>
+          <Text style={graphicsStyles.dateRange}>{weekRange}</Text>
+          <View style={graphicsStyles.buttonContainer}>
             <Button title="Semana Anterior" onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)} />
             <Button title="Semana Siguiente" onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} disabled={isNextWeekDisabled()} />
           </View>
           {renderWeeklyChart()}
-          <Text style={styles.dateRange}>{yearRange}</Text>
-          <View style={styles.buttonContainer}>
+          <Text style={graphicsStyles.dateRange}>{yearRange}</Text>
+          <View style={graphicsStyles.buttonContainer}>
             <Button title="Año Anterior" onPress={() => setCurrentYear(currentYear - 1)} />
             <Button title="Año Siguiente" onPress={() => setCurrentYear(currentYear + 1)} disabled={currentYear >= new Date().getFullYear()} />
           </View>
@@ -234,45 +229,5 @@ const chartConfig = {
   useShadowColorFromDataset: false
 };
 
-const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 20,
-    alignItems: 'center'
-  },
-  workerContainer: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    width: '90%'
-  },
-  workerText: {
-    fontSize: 18
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginVertical: 10
-  },
-  dateRange: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    marginBottom: 10
-  },
-  chartContainer: {
-    marginVertical: 10
-  },
-  chartTitle: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 10
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%',
-    marginBottom: 10
-  }
-});
 
 export default GraphicsMenuScreen;
