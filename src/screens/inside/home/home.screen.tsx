@@ -27,8 +27,6 @@ const HomeScreen = () => {
         accuracy: Location.Accuracy.High
       });
 
-      console.log(location);
-
       return {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -54,7 +52,7 @@ const HomeScreen = () => {
       } else {
         Toast.show({
           type: 'error',
-          text1: 'Error al marcar entrada'
+          text1: response.error || 'Error al marcar entrada'
         });
       }
     } catch (error) {
@@ -82,7 +80,7 @@ const HomeScreen = () => {
       } else {
         Toast.show({
           type: 'error',
-          text1: 'Error al marcar salida'
+          text1: response.error || 'Error al marcar salida'
         });
       }
     } catch (error) {

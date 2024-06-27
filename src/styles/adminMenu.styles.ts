@@ -1,14 +1,18 @@
 import { StyleSheet } from 'react-native';
 
 export const adminMenuStyles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 20,
-      backgroundColor: '#fff',
-    },
-    button: {
-      backgroundColor: '#6200ee',
-      marginVertical: 10,
-    }
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  button: {
+    justifyContent: 'center',
+    backgroundColor: '#6200ee',
+    height: 60,
+    marginVertical: 10,
+    width: '80%',
+    alignSelf: 'center'
+  }
 });

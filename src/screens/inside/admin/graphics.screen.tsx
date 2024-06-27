@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, Button, Dimensions } from 'react-native';
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { Text } from 'native-base';
+import { Button } from 'react-native-elements';
 import { BarChart } from 'react-native-chart-kit';
 import { useFocusEffect } from '@react-navigation/native';
 import tokenUseStore from '../../../useStores/token.useStore';
@@ -29,6 +30,7 @@ const GraphicsMenuScreen = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [weekRange, setWeekRange] = useState('');
   const [yearRange, setYearRange] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -40,7 +42,10 @@ const GraphicsMenuScreen = () => {
         return;
       }
 
+      setLoading(true);
       const response = await getWorkersService(storedToken);
+      setLoading(false);
+
       if (response.success) {
         setWorkers(response.data.data);
       } else {
@@ -54,6 +59,8 @@ const GraphicsMenuScreen = () => {
   }, [storedToken, storedIsAdmin]);
 
   const fetchWeeklyData = async (workerId: number, offset: number) => {
+    setLoading(true);
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() + offset * 7 - startDate.getDay() + 1);
     const endDate = new Date(startDate);
@@ -69,6 +76,8 @@ const GraphicsMenuScreen = () => {
     };
 
     const response = await getWeekHoursService(payload);
+    setLoading(false);
+
     if (response.success) {
       if (response.data && response.data.length > 0) {
         const daysOfWeek = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
@@ -92,6 +101,8 @@ const GraphicsMenuScreen = () => {
   };
 
   const fetchMonthlyData = async (workerId: number, year: number) => {
+    setLoading(true);
+
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
@@ -105,6 +116,8 @@ const GraphicsMenuScreen = () => {
     };
 
     const response = await getYearHoursService(payload);
+    setLoading(false);
+
     if (response.success) {
       if (response.data && response.data.length > 0) {
         const monthlyHours = Array(12).fill(0);
@@ -201,15 +214,41 @@ const GraphicsMenuScreen = () => {
         <>
           <Text style={graphicsStyles.subtitle}>Horas de Trabajo de {selectedWorker.name} {selectedWorker.lastName}</Text>
           <Text style={graphicsStyles.dateRange}>{weekRange}</Text>
-          <View style={graphicsStyles.buttonContainer}>
-            <Button title="Semana Anterior" onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)} />
-            <Button title="Semana Siguiente" onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} disabled={isNextWeekDisabled()} />
+          <View style={graphicsStyles.buttonsContainer}>
+            <Button
+              containerStyle={graphicsStyles.buttonContainer}
+              buttonStyle={graphicsStyles.button}
+              loading={loading}
+              title="Semana Anterior"
+              onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)}
+            />
+            <Button
+              containerStyle={graphicsStyles.buttonContainer}
+              buttonStyle={graphicsStyles.button}
+              loading={loading}
+              title="Semana Siguiente"
+              onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)}
+              disabled={isNextWeekDisabled()}
+            />
           </View>
           {renderWeeklyChart()}
           <Text style={graphicsStyles.dateRange}>{yearRange}</Text>
-          <View style={graphicsStyles.buttonContainer}>
-            <Button title="Año Anterior" onPress={() => setCurrentYear(currentYear - 1)} />
-            <Button title="Año Siguiente" onPress={() => setCurrentYear(currentYear + 1)} disabled={currentYear >= new Date().getFullYear()} />
+          <View style={graphicsStyles.buttonsContainer}>
+            <Button
+              containerStyle={graphicsStyles.buttonContainer}
+              buttonStyle={graphicsStyles.button}
+              loading={loading}
+              title="Año Anterior"
+              onPress={() => setCurrentYear(currentYear - 1)}
+            />
+            <Button
+              containerStyle={graphicsStyles.buttonContainer}
+              buttonStyle={graphicsStyles.button}
+              loading={loading}
+              title="Año Siguiente"
+              onPress={() => setCurrentYear(currentYear + 1)}
+              disabled={currentYear >= new Date().getFullYear()}
+            />
           </View>
           {renderMonthlyChart()}
         </>
@@ -228,6 +267,5 @@ const chartConfig = {
   barPercentage: 0.5,
   useShadowColorFromDataset: false
 };
-
 
 export default GraphicsMenuScreen;

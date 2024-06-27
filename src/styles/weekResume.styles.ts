@@ -48,17 +48,20 @@ export const weekResumeStyles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
+    alignSelf: 'center',
+    width: '45%',
+  },
+  buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    marginVertical: 16,
+    marginBottom: 10
   },
   button: {
-    flex: 1,
-    backgroundColor: '#6200ee',
-    borderRadius: 8,
-    height: 50,
-    marginHorizontal: 5,
+    justifyContent: 'center',
+    height: 40,
+    backgroundColor: '#6200EE',
+    marginVertical: 10,
   },
   dateRangeText: {
     fontSize: 20,

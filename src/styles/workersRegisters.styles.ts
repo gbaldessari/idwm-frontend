@@ -67,14 +67,25 @@ export const workersRegistersStyles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center'
   },
-  buttonContainer: {
+  buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 16
+    width: '100%',
+    marginBottom: 10
   },
   dateRangeText: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 16
+  },
+  buttonContainer: {
+    alignSelf: 'center',
+    width: '45%',
+  },
+  button: {
+    justifyContent: 'center',
+    height: 40,
+    backgroundColor: '#6200EE',
+    marginVertical: 10,
   }
 });

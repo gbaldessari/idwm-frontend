@@ -21,10 +21,13 @@ const WeekResumeScreen = () => {
 
   const fetchRegisters = async () => {
     setLoading(true);
+    const startDate = formatISODate(new Date(currentWeek.startDate));
+    const endDate = formatISODate(new Date(currentWeek.endDate));
+
     const response = await getRegistersByRangeService({
       token,
-      startDate: currentWeek.startDate,
-      endDate: currentWeek.endDate,
+      startDate,
+      endDate,
     });
     setLoading(false);
 
@@ -36,6 +39,10 @@ const WeekResumeScreen = () => {
         text1: 'Error al obtener los registros del Usuario'
       });
     }
+  };
+
+  const formatISODate = (date: Date): string => {
+    return date.toISOString().split('T')[0];
   };
 
   const handlePreviousWeek = () => {
@@ -95,18 +102,18 @@ const WeekResumeScreen = () => {
     <StyledBox>
       <VStack space={4} alignItems="center">
         <Text style={weekResumeStyles.dateRangeText}>Semana del {currentWeek.startDate} al {currentWeek.endDate}</Text>
-        <View style={weekResumeStyles.buttonContainer}>
+        <View style={weekResumeStyles.buttonsContainer}>
           <Button
             title="Semana Anterior"
             onPress={handlePreviousWeek}
-            containerStyle={weekResumeStyles.button}
+            containerStyle={weekResumeStyles.buttonContainer}
             buttonStyle={weekResumeStyles.button}
             loading={loading}
           />
           <Button
             title="Semana Siguiente"
             onPress={handleNextWeek}
-            containerStyle={weekResumeStyles.button}
+            containerStyle={weekResumeStyles.buttonContainer}
             buttonStyle={weekResumeStyles.button}
             loading={loading}
             disabled={isNextWeekDisabled()}

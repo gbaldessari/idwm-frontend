@@ -18,7 +18,7 @@ const RecoverPasswordScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
 
   useEffect(() => {
-    const { error } = recoverPasswordSchema.validate(newPassword);
+    const { error } = recoverPasswordSchema.validate({ newPassword });
     if (error) {
       setErrorMessage(error.details[0].message);
     } else {
@@ -27,31 +27,30 @@ const RecoverPasswordScreen = () => {
   }, [newPassword]);
 
   const onApplyChanges = async () => {
-    const { error } = recoverPasswordSchema.validate(newPassword);
+    const { error } = recoverPasswordSchema.validate({ newPassword });
     if (error) {
       setErrorMessage(error.details[0].message);
       return;
     }
-
+  
     setLoading(true);
     const response = await changeForgottenPasswordService({ token, newPassword });
     setLoading(false);
-
+  
     if (response?.success) {
       Toast.show({
         type: 'success',
-        text1: 'Contraseña actualizada con exito',
+        text1: 'Contraseña actualizada con éxito',
       });
       navigation.navigate('Main');
-    } else{
+    } else {
       Toast.show({
         type: 'error',
         text1: 'Error al actualizar contraseña',
       });
     }
-    
   };
-
+  
   return (
     <StyledBox>
       <Text style={recoverPasswordStyles.title}>¡Revisa tu Correo!</Text>

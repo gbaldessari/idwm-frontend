@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, Button } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
+import { Button } from 'react-native-elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import tokenUseStore from '../../../useStores/token.useStore';
 import isAdminUseStore from '../../../useStores/isAdmin.useStore';
@@ -43,6 +44,7 @@ const WorkersRegistersScreen: React.FC = () => {
   const [registers, setRegisters] = useState<Register[]>([]);
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
   const [dateRange, setDateRange] = useState<DateRange>({ startDate: '', endDate: '' });
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
   
 
@@ -55,8 +57,9 @@ const WorkersRegistersScreen: React.FC = () => {
         });
         return;
       }
-
+      setLoading(true);
       const response = await getWorkersService(storedToken);
+      setLoading(false);
       if (response.success) {
         setWorkers(response.data.data);
       } else {
@@ -88,8 +91,9 @@ const WorkersRegistersScreen: React.FC = () => {
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0]
     };
-
+    setLoading(true);
     const response: ServiceResponse<Register[]> = await getRegistersOfWorkersService(payload);
+    setLoading(false);
     if (response.success) {
       if (response.data?.length === 0) {
         Toast.show({
@@ -212,9 +216,22 @@ const WorkersRegistersScreen: React.FC = () => {
         <>
           <Text style={workersRegistersStyles.subtitle}>Entradas y Salidas de {selectedWorker.name} {selectedWorker.lastName}</Text>
           <Text style={workersRegistersStyles.dateRangeText}>Semana del {dateRange.startDate} al {dateRange.endDate}</Text>
-          <View style={workersRegistersStyles.buttonContainer}>
-            <Button title="Semana Anterior" onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)} />
-            <Button title="Semana Siguiente" onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} disabled={isNextWeekDisabled()} />
+          <View style={workersRegistersStyles.buttonsContainer}>
+            <Button
+              containerStyle={workersRegistersStyles.buttonContainer}
+              buttonStyle={workersRegistersStyles.button}
+              title="Semana Anterior"
+              loading={loading}
+              onPress={() => setCurrentWeekOffset(currentWeekOffset - 1)}
+            />
+            <Button
+              containerStyle={workersRegistersStyles.buttonContainer}
+              buttonStyle={workersRegistersStyles.button}
+              title="Semana Siguiente" 
+              onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} 
+              loading={loading}
+              disabled={isNextWeekDisabled()}
+            />
           </View>
           {renderTable()}
         </>
