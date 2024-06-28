@@ -46,7 +46,7 @@ const WorkersRegistersScreen: React.FC = () => {
   const [dateRange, setDateRange] = useState<DateRange>({ startDate: '', endDate: '' });
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<NavigationRoutes>>();
-  
+
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -150,7 +150,7 @@ const WorkersRegistersScreen: React.FC = () => {
       setSelectedRegister(register);
       navigation.navigate('EditRegister');
     }
-  };  
+  };
 
   const renderTable = () => {
     const startDate = new Date(dateRange.startDate);
@@ -227,8 +227,8 @@ const WorkersRegistersScreen: React.FC = () => {
             <Button
               containerStyle={workersRegistersStyles.buttonContainer}
               buttonStyle={workersRegistersStyles.button}
-              title="Semana Siguiente" 
-              onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)} 
+              title="Semana Siguiente"
+              onPress={() => setCurrentWeekOffset(currentWeekOffset + 1)}
               loading={loading}
               disabled={isNextWeekDisabled()}
             />

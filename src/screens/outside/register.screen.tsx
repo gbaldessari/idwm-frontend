@@ -72,7 +72,7 @@ const RegisterScreen = () => {
       });
       navigation.navigate('Main');
     }
-    else{
+    else {
       Toast.show({
         type: 'error',
         text1: 'Error al registrar al usuario',
@@ -135,7 +135,7 @@ const RegisterScreen = () => {
   );
 };
 
-const CustomInput = ({ placeholder, value, onChangeText, errorMessage, secureTextEntry }:{ placeholder: string; value:string; onChangeText: (value: string) => void; errorMessage?: string; secureTextEntry?:boolean}) => (
+const CustomInput = ({ placeholder, value, onChangeText, errorMessage, secureTextEntry }: { placeholder: string; value: string; onChangeText: (value: string) => void; errorMessage?: string; secureTextEntry?: boolean }) => (
   <>
     <TextInput
       style={registerStyles.input}

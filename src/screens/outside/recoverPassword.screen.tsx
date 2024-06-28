@@ -32,11 +32,11 @@ const RecoverPasswordScreen = () => {
       setErrorMessage(error.details[0].message);
       return;
     }
-  
+
     setLoading(true);
     const response = await changeForgottenPasswordService({ token, newPassword });
     setLoading(false);
-  
+
     if (response?.success) {
       Toast.show({
         type: 'success',
@@ -50,7 +50,7 @@ const RecoverPasswordScreen = () => {
       });
     }
   };
-  
+
   return (
     <StyledBox>
       <Text style={recoverPasswordStyles.title}>¡Revisa tu Correo!</Text>
@@ -84,7 +84,7 @@ const StyledBox = ({ children }: { children: React.ReactNode }) => (
   </View>
 );
 
-const FormInput = ({placeholder, secureTextEntry, value, onChangeText, errorMessage,}: {placeholder: string; secureTextEntry?: boolean; value: string; onChangeText: (text: string) => void; errorMessage?: string;}) => (
+const FormInput = ({ placeholder, secureTextEntry, value, onChangeText, errorMessage, }: { placeholder: string; secureTextEntry?: boolean; value: string; onChangeText: (text: string) => void; errorMessage?: string; }) => (
   <>
     <TextInput
       placeholder={placeholder}
@@ -97,7 +97,7 @@ const FormInput = ({placeholder, secureTextEntry, value, onChangeText, errorMess
   </>
 );
 
-const ActionButton = ({title, onPress, loading, style}: { title: string; onPress: () => void; loading?: boolean; style: object;}) => (
+const ActionButton = ({ title, onPress, loading, style }: { title: string; onPress: () => void; loading?: boolean; style: object; }) => (
   <Button
     title={title}
     onPress={onPress}

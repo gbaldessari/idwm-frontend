@@ -4,7 +4,7 @@ import { NavigationRoutes } from '../types/navigationRoutes.type';
 import AdminMenuScreen from '../screens/inside/admin/adminMenu.screen';
 import WorkersRegistersScreen from '../screens/inside/admin/workersRegisters.screen';
 import EditRegisterScreen from '../screens/inside/admin/editRegister.screen';
-import GraphicsMenuScreen from '../screens/inside/admin/graphics.screen';
+import GraphicsScreen from '../screens/inside/admin/graphics.screen';
 
 const Stack = createNativeStackNavigator<NavigationRoutes>();
 
@@ -19,7 +19,7 @@ const adminScreens: ScreenConfig[] = [
   { name: 'AdminMenu', component: AdminMenuScreen, headerShown: false },
   { name: 'WorkersRegisters', component: WorkersRegistersScreen, headerShown: true, title: 'Ver Registros' },
   { name: 'EditRegister', component: EditRegisterScreen, headerShown: true, title: 'Editar Registro' },
-  { name: 'GraphicsMenu', component: GraphicsMenuScreen, headerShown: true, title: 'Ver Graficos' }
+  { name: 'GraphicsMenu', component: GraphicsScreen, headerShown: true, title: 'Ver Graficos' }
 ];
 
 const AdminStackNavigator = () => (

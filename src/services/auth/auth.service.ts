@@ -55,7 +55,7 @@ export const changePasswordService = async (payload: { token: string; oldPasswor
   }
 };
 
-export const getUserDataService = async (payload: { token: string }): Promise<ServiceResponse<{name: string; lastName: string; birthdate: string;}>> => {
+export const getUserDataService = async (payload: { token: string }): Promise<ServiceResponse<{ name: string; lastName: string; birthdate: string; }>> => {
   try {
     const response = await axiosInstance.get('/auth/get-user', {
       headers: { Authorization: `Bearer ${payload.token}` },

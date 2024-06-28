@@ -42,7 +42,7 @@ const ForgottenPasswordScreen = () => {
 
     if (response?.success) {
       navigation.navigate('RecoverPassword');
-    } else{
+    } else {
       Toast.show({
         type: 'error',
         text1: 'Error'

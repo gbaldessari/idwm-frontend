@@ -22,7 +22,7 @@ const MainScreen = () => {
     <StyledContainer>
       <StyledBox text="GeoMarcaje Pro" />
       <CustomButton title='Ingresar' onPress={handleLogin} />
-      <CustomButton title='Registrarse' onPress={handleRegister}  />
+      <CustomButton title='Registrarse' onPress={handleRegister} />
     </StyledContainer>
   );
 };
@@ -35,7 +35,7 @@ const StyledBox = ({ text }: { text: string }) => (
   </Center>
 );
 
-const CustomButton = ({title, onPress }: {title:string; onPress: () => void;}) => (
+const CustomButton = ({ title, onPress }: { title: string; onPress: () => void; }) => (
   <Center>
     <Button
       title={title}

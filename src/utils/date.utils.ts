@@ -5,9 +5,9 @@ export const getCurrentWeekDates = () => {
   startDate.setDate(today.getDate() - dayOfWeek);
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 6);
-  return { 
-      startDate: startDate.toISOString().split('T')[0], 
-      endDate: endDate.toISOString().split('T')[0] 
+  return {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0]
   };
 };
 
@@ -16,9 +16,9 @@ export const getPreviousWeekDates = (currentStartDate: string) => {
   startDate.setDate(startDate.getDate() - 7);
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 6);
-  return { 
-      startDate: startDate.toISOString().split('T')[0], 
-      endDate: endDate.toISOString().split('T')[0] 
+  return {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0]
   };
 };
 
@@ -27,8 +27,8 @@ export const getNextWeekDates = (currentStartDate: string) => {
   startDate.setDate(startDate.getDate() + 7);
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 6);
-  return { 
-      startDate: startDate.toISOString().split('T')[0], 
-      endDate: endDate.toISOString().split('T')[0] 
+  return {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0]
   };
 };

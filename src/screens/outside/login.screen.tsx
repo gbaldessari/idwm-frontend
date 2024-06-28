@@ -52,7 +52,7 @@ const LoginScreen = () => {
     }
   }, [formData]);
 
-  const handleForgottenPassword = ()=>{
+  const handleForgottenPassword = () => {
     setMailStore(formData.email);
     navigation.navigate('ForgottenPassword')
   }
@@ -84,7 +84,7 @@ const LoginScreen = () => {
         text1: 'Ingreso exitoso',
       });
       navigation.navigate('Inside');
-    } else{
+    } else {
       Toast.show({
         type: 'error',
         text1: 'Error al ingresar',
@@ -128,7 +128,7 @@ const LoginScreen = () => {
   );
 };
 
-const CustomInput = ({ placeholder, value, onChangeText, errorMessage, secureTextEntry, disabled }: { placeholder:string; value:string; onChangeText: (value: string)=>void; errorMessage?:string; secureTextEntry?:boolean; disabled?:boolean }) => (
+const CustomInput = ({ placeholder, value, onChangeText, errorMessage, secureTextEntry, disabled }: { placeholder: string; value: string; onChangeText: (value: string) => void; errorMessage?: string; secureTextEntry?: boolean; disabled?: boolean }) => (
   <>
     <Input
       style={loginStyles.input}

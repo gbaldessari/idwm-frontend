@@ -6,8 +6,8 @@ type TokenState = {
 };
 
 const tokenUseStore = create<TokenState>()((set) => ({
-    storedToken: '',
-    setToken: (value: string) => set({ storedToken: value }),
+  storedToken: '',
+  setToken: (value: string) => set({ storedToken: value }),
 }));
 
 export default tokenUseStore;

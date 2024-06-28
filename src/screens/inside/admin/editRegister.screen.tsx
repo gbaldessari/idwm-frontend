@@ -60,7 +60,7 @@ const EditRegisterScreen = () => {
     const errors = validate();
     setErrors(errors || {});
     if (errors) return;
-  
+
     let response;
     try {
       if (selectedRegister) {
@@ -89,7 +89,7 @@ const EditRegisterScreen = () => {
       });
     }
   };
-  
+
   return (
     <View style={editRegisterStyles.container}>
       <Text style={editRegisterStyles.label}>Hora de Entrada</Text>

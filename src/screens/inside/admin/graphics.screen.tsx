@@ -19,7 +19,7 @@ interface Worker {
 
 const screenWidth = Dimensions.get('window').width;
 
-const GraphicsMenuScreen = () => {
+const GraphicsScreen = () => {
   const { storedToken } = tokenUseStore();
   const { storedIsAdmin } = isAdminUseStore();
   const [workers, setWorkers] = useState<Worker[]>([]);
@@ -198,7 +198,8 @@ const GraphicsMenuScreen = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={graphicsStyles.container}>
+    <ScrollView style={graphicsStyles.container} contentContainerStyle={graphicsStyles.contentContainer}>
+      {loading && <ActivityIndicator size="large" color="#6200EE" />}
       {workers.map((worker: Worker) => (
         <TouchableOpacity key={worker.id} onPress={() => {
           setSelectedWorker(worker);
@@ -268,4 +269,4 @@ const chartConfig = {
   useShadowColorFromDataset: false
 };
 
-export default GraphicsMenuScreen;
+export default GraphicsScreen;
