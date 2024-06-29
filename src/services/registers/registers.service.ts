@@ -67,8 +67,8 @@ export const adminCreateRegisterService = async (payload: { token: string; id: n
 
 export const updateStartRegisterService = async (payload: { token: string; id: number; date: string }): Promise<ServiceResponse<any>> => {
   try {
-    const response = await axiosInstance.post('/registers/update-start-register',
-      { id: payload.id, date: payload.date },
+    const response = await axiosInstance.put('/registers/update-start-register',
+      { id: payload.id, time: payload.date },
       { headers: { Authorization: payload.token } }
     );
     return { success: response.data.success, data: response.data };
@@ -79,8 +79,8 @@ export const updateStartRegisterService = async (payload: { token: string; id: n
 
 export const updateEndRegisterService = async (payload: { token: string; id: number; date: string }): Promise<ServiceResponse<any>> => {
   try {
-    const response = await axiosInstance.post('/registers/update-end-register',
-      { id: payload.id, date: payload.date },
+    const response = await axiosInstance.put('/registers/update-end-register',
+      { id: payload.id, time: payload.date },
       { headers: { Authorization: payload.token } }
     );
     return { success: response.data.success, data: response.data };

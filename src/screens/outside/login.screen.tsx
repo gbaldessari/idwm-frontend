@@ -88,6 +88,7 @@ const LoginScreen = () => {
       Toast.show({
         type: 'error',
         text1: 'Error al ingresar',
+        text2: 'Usuario o contraseña incorrectos'
       });
     }
   };
